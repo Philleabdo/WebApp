@@ -19,6 +19,8 @@ namespace grupp6WebApp
                 app.UseHsts();
             }
 
+            //kerrkuuurriii
+
             app.UseHttpsRedirection();
             app.UseRouting();
 
