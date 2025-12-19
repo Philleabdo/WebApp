@@ -20,7 +20,7 @@ namespace grupp6WebApp
             }
 
             //kerrkuuurriii
-            //lijflksj
+            
 
             app.UseHttpsRedirection();
             app.UseRouting();
