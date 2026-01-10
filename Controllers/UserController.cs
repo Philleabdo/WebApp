@@ -1,65 +1,90 @@
-﻿using grupp6WebApp.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+﻿using grupp6WebApp.Data;
+using grupp6WebApp.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using BCrypt.Net; // För lösenordshantering
 
-
-namespace grupp6WebApp.Controllers;
-
-[Authorize]
-public class UserController : Controller
+namespace grupp6WebApp.Controllers
 {
-    private readonly grupp6WebApp.Data.ApplicationDbContext _context;
-    private readonly UserManager<IdentityUser> _userManager;
-
-    public UserController(grupp6WebApp.Data.ApplicationDbContext context, UserManager<IdentityUser> userManager)
+    public class UserController : Controller
     {
-        _context = context;
-        _userManager = userManager;
-    }
+        private readonly ApplicationDbContext _context;
 
-    public async Task<IActionResult> Index()
-    {
-        var userId = _userManager.GetUserId(User);
-        if (string.IsNullOrWhiteSpace(userId))
-            return Challenge();
-
-        var profile = await _context.Profiles.FirstOrDefaultAsync(p => p.IdentityUserId == userId);
-
-        if (profile is null)
+        public UserController(ApplicationDbContext context)
         {
-            profile = new Profile
-            {
-                IdentityUserId = userId,
-                Email = User.Identity?.Name
-            };
-
-            _context.Profiles.Add(profile);
-            await _context.SaveChangesAsync();
+            _context = context;
         }
 
-        return View(profile);
-    }
+        // 1. Visa profilen för en specifik användare (t.ex. /User/Index/1)
+        public async Task<IActionResult> Index(int id)
+        {
+            // Vi hämtar användaren och inkluderar deras profil i samma sökning
+            var profile = await _context.Profiles
+                .Include(p => p.User)
+                .FirstOrDefaultAsync(p => p.UserId == id);
 
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Update(Profile model)
-    {
-        var userId = _userManager.GetUserId(User);
-        if (string.IsNullOrWhiteSpace(userId))
-            return Challenge();
+            if (profile == null)
+            {
+                return NotFound("Profilen hittades inte.");
+            }
 
-        var profile = await _context.Profiles.FirstOrDefaultAsync(p => p.IdentityUserId == userId);
-        if (profile is null)
-            return NotFound();
+            return View(profile);
+        }
 
-        profile.FirstName = model.FirstName;
-        profile.LastName = model.LastName;
-        profile.Email = model.Email;
-        profile.Address = model.Address;
+        // 2. Registrera en ny användare + skapa deras profil samtidigt
+        [HttpGet]
+        public IActionResult Register()
+        {
+            return View();
+        }
 
-        await _context.SaveChangesAsync();
-        return RedirectToAction(nameof(Index));
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Register(User user)
+        {
+            if (ModelState.IsValid)
+            {
+                // Hasha lösenordet innan vi sparar
+                user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
+
+                // Spara användaren
+                _context.Users.Add(user);
+                await _context.SaveChangesAsync(); // Här skapas UserId (Identity 1,1)
+
+                // Skapa en tom profil automatiskt för den nya användaren
+                var newProfile = new Profile
+                {
+                    UserId = user.UserId, // Koppla ihop dem!
+                    Bio = "Välkommen till min profil!",
+                    IsPublic = true
+                };
+
+                _context.Profiles.Add(newProfile);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction("Index", new { id = user.UserId });
+            }
+            return View(user);
+        }
+
+        // 3. Uppdatera profil (Kyris del)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Update(Profile model)
+        {
+            var profile = await _context.Profiles.FirstOrDefaultAsync(p => p.ProfileId == model.ProfileId);
+
+            if (profile == null) return NotFound();
+
+            // Uppdatera fälten i Profile-tabellen
+            profile.Bio = model.Bio;
+            profile.Skills = model.Skills;
+            profile.Education = model.Education;
+            profile.Experience = model.Experience;
+            profile.IsPublic = model.IsPublic;
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index), new { id = profile.UserId });
+        }
     }
 }

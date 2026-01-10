@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.AspNetCore.Identity;
 
 namespace grupp6WebApp.Models
 {
@@ -10,11 +9,10 @@ namespace grupp6WebApp.Models
         [Key]
         public int MessageId { get; set; }
 
-        public string? SenderName { get; set; } // Namn för t.ex. anonyma avsändare
+        public string? SenderName { get; set; }
 
-        // Identity använder string som UserId
         [Required]
-        public string ReceiverUserId { get; set; } = string.Empty;
+        public int ReceiverUserId { get; set; } // Kopplas mot din User.UserId (int)
 
         [Required]
         [StringLength(255)]
@@ -27,8 +25,8 @@ namespace grupp6WebApp.Models
 
         public DateTime SentDate { get; set; } = DateTime.Now;
 
-        // Navigation property till IdentityUser
-        [ForeignKey(nameof(ReceiverUserId))]
-        public IdentityUser? Receiver { get; set; }
+        // Navigation property till din EGEN User-klass
+        [ForeignKey("ReceiverUserId")]
+        public virtual User? Receiver { get; set; }
     }
 }

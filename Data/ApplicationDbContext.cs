@@ -11,6 +11,7 @@ public class ApplicationDbContext : IdentityDbContext
     {
     }
 
-    public DbSet<Profile> Profiles { get; set; } = default!;
-    public DbSet<Message> Messages { get; set; } = default!;
+    public DbSet<Profile> Profiles { get; set; }
+    public DbSet<Message> Messages { get; set; }
+    public DbSet<User> User { get; set; }
 }
