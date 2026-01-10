@@ -1,3 +1,6 @@
+using grupp6WebApp.Data;
+using Microsoft.EntityFrameworkCore;
+
 namespace grupp6WebApp
 {
     public class Program
@@ -5,6 +8,13 @@ namespace grupp6WebApp
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            // 1. Hämta din connection string från appsettings.json
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+            // 2. Koppla din DbContext till SQL Server
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlServer(connectionString));
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
