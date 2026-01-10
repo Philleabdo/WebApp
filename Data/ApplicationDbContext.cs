@@ -13,5 +13,6 @@ public class ApplicationDbContext : IdentityDbContext
 
     public DbSet<Profile> Profiles { get; set; }
     public DbSet<Message> Messages { get; set; }
+    public DbSet<Project> Projects { get; set; }
     public DbSet<User> User { get; set; }
 }
