@@ -1,31 +1,70 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Security.Claims;
+using grupp6WebApp.Data;
 using grupp6WebApp.Models.ViewModels.Account;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 
-namespace grupp6WebApp.Pages.Account
+namespace grupp6WebApp.Pages.Account;
+
+public class LoginModel : PageModel
 {
-    public class LoginModel : PageModel
+    private readonly ApplicationDbContext _db;
+
+    public LoginModel(ApplicationDbContext db)
     {
-        [BindProperty]
-        public LoginVm Input { get; set; } = new();
-        public void OnGet()
+        _db = db;
+    }
+
+    [BindProperty]
+    public LoginVm Input { get; set; } = new();
+
+    public string? ErrorMessage { get; set; }
+
+    public void OnGet()
+    {
+    }
+
+    public async Task<IActionResult> OnPostAsync()
+    {
+        if (!ModelState.IsValid)
+            return Page();
+
+        var email = Input.Email.Trim();
+
+        var user = await _db.Users.SingleOrDefaultAsync(u => u.Email == email);
+
+        if (user == null || !BCrypt.Net.BCrypt.Verify(Input.Password, user.Password))
         {
-            //Körs när sidan laddas (GET /Account/Login)
+            ErrorMessage = "Fel e-post eller lösenord.";
+            return Page();
         }
 
-        public IActionResult OnPost()
+        var claims = new List<Claim>
         {
-            //Körs när formuläret skickas (POST)
-            if (!ModelState.IsValid)
-                return Page(); //stanna på samma sida och visa valideringsfel
+            new(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+            new(ClaimTypes.Email, user.Email),
+            new(ClaimTypes.Name, $"{user.FirstName} {user.LastName}")
+        };
 
-            //DB/Identity kommer senare, nu bara navigation
-            return RedirectToPage("/Index");
-        }
+        var principal = new ClaimsPrincipal(
+            new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme));
+
+        var authProps = new AuthenticationProperties
+        {
+            IsPersistent = Input.RememberMe,
+            ExpiresUtc = Input.RememberMe
+                ? DateTimeOffset.UtcNow.AddDays(7)
+                : DateTimeOffset.UtcNow.AddHours(2)
+        };
+
+        await HttpContext.SignInAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            principal,
+            authProps);
+
+        return RedirectToPage("/Index");
     }
 }

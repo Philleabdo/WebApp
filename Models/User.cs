@@ -1,29 +1,33 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using grupp6WebApp.Models;
+using System.ComponentModel.DataAnnotations;
 
-namespace grupp6WebApp.Models
+namespace group6WebApp.Models;
+
+public class User
 {
-    [Table("User")]
-    public class User
-    {
-        [Key]
-        public int UserId { get; set; }
+    [Key]
+    public int UserId { get; set; }
 
-        [Required]
-        public string FirstName { get; set; }
+    [Required]
+    public string FirstName { get; set; } = string.Empty;
 
-        [Required]
-        public string LastName { get; set; }
+    [Required]
+    public string LastName { get; set; } = string.Empty;
 
-        [Required]
-        public string Email { get; set; }
+    [Required]
+    public string Email { get; set; } = string.Empty;
 
-        [Required]
-        public string Address { get; set; }
+    [Required]
+    public string Address { get; set; } = string.Empty;
 
-        public string? Phone { get; set; }
+    public string? Phone { get; set; }
 
-        [Required]
-        public string Password { get; set; }
-    }
+    // Här lagras HASH (BCrypt)
+    [Required]
+    public string Password { get; set; } = string.Empty;
+
+    // Navigation
+    public Profile? Profile { get; set; }
+    public List<Project> Projects { get; set; } = new();
+    public List<Message> ReceivedMessages { get; set; } = new();
 }

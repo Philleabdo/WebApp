@@ -1,90 +1,35 @@
 ﻿using grupp6WebApp.Data;
-using grupp6WebApp.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using BCrypt.Net; // För lösenordshantering
 
-namespace grupp6WebApp.Controllers
+namespace grupp6WebApp.Controllers;
+
+[Authorize]
+public class UserController : Controller
 {
-    public class UserController : Controller
+    private readonly ApplicationDbContext _db;
+
+    public UserController(ApplicationDbContext db)
     {
-        private readonly ApplicationDbContext _context;
+        _db = db;
+    }
 
-        public UserController(ApplicationDbContext context)
-        {
-            _context = context;
-        }
+    // Exempel: visa användarens profil (kopplad 1-1)
+    public async Task<IActionResult> Profile()
+    {
+        // UserId från cookie-claim
+        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (!int.TryParse(userIdClaim, out var userId))
+            return RedirectToPage("/Account/Login");
 
-        // 1. Visa profilen för en specifik användare (t.ex. /User/Index/1)
-        public async Task<IActionResult> Index(int id)
-        {
-            // Vi hämtar användaren och inkluderar deras profil i samma sökning
-            var profile = await _context.Profiles
-                .Include(p => p.User)
-                .FirstOrDefaultAsync(p => p.UserId == id);
+        var user = await _db.Users
+            .Include(u => u.Profile)
+            .SingleOrDefaultAsync(u => u.UserId == userId);
 
-            if (profile == null)
-            {
-                return NotFound("Profilen hittades inte.");
-            }
+        if (user == null)
+            return NotFound();
 
-            return View(profile);
-        }
-
-        // 2. Registrera en ny användare + skapa deras profil samtidigt
-        [HttpGet]
-        public IActionResult Register()
-        {
-            return View();
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(User user)
-        {
-            if (ModelState.IsValid)
-            {
-                // Hasha lösenordet innan vi sparar
-                user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
-
-                // Spara användaren
-                _context.Users.Add(user);
-                await _context.SaveChangesAsync(); // Här skapas UserId (Identity 1,1)
-
-                // Skapa en tom profil automatiskt för den nya användaren
-                var newProfile = new Profile
-                {
-                    UserId = user.UserId, // Koppla ihop dem!
-                    Bio = "Välkommen till min profil!",
-                    IsPublic = true
-                };
-
-                _context.Profiles.Add(newProfile);
-                await _context.SaveChangesAsync();
-
-                return RedirectToAction("Index", new { id = user.UserId });
-            }
-            return View(user);
-        }
-
-        // 3. Uppdatera profil (Kyris del)
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Update(Profile model)
-        {
-            var profile = await _context.Profiles.FirstOrDefaultAsync(p => p.ProfileId == model.ProfileId);
-
-            if (profile == null) return NotFound();
-
-            // Uppdatera fälten i Profile-tabellen
-            profile.Bio = model.Bio;
-            profile.Skills = model.Skills;
-            profile.Education = model.Education;
-            profile.Experience = model.Experience;
-            profile.IsPublic = model.IsPublic;
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index), new { id = profile.UserId });
-        }
+        return View(user); // View kan ta User som model
     }
 }

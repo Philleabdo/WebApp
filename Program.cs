@@ -1,6 +1,7 @@
 using grupp6WebApp.Data;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,25 +9,26 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-// 2) DbContext (SQL Server)
+// 2) DbContext (SQL Server) - VANLIG DbContext, INTE IdentityDbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-// 3) Identity + EF store
+// 3) Cookie Authentication (egen login, INTE Identity)
 builder.Services
-    .AddDefaultIdentity<IdentityUser>(options =>
+    .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
     {
-        options.SignIn.RequireConfirmedAccount = false;
+        options.LoginPath = "/Account/Login";
+        options.LogoutPath = "/Account/Logout";
+        options.AccessDeniedPath = "/Account/Login";
+        options.Cookie.Name = "group6.auth";
+        options.SlidingExpiration = true;
+        options.ExpireTimeSpan = TimeSpan.FromDays(7);
+    });
 
-        // valfritt: enkla password-regler
-        // options.Password.RequiredLength = 6;
-        // options.Password.RequireDigit = false;
-        // options.Password.RequireUppercase = false;
-        // options.Password.RequireNonAlphanumeric = false;
-    })
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddAuthorization();
 
-// 4) MVC + Razor Pages (du behöver båda)
+// 4) MVC + Razor Pages (du har båda)
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
@@ -44,6 +46,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+// VIKTIG ORDNING
 app.UseAuthentication();
 app.UseAuthorization();
 

@@ -1,29 +1,61 @@
-﻿using grupp6WebApp.Models.ViewModels.Account;
+﻿using System.Security.Claims;
+using BCrypt.Net;
+using grupp6WebApp.Data;
+using grupp6WebApp.Models.ViewModels.Account;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
-namespace grupp6WebApp.Pages.Manage
+namespace grupp6WebApp.Pages.Manage;
+
+[Authorize]
+public class ChangePasswordModel : PageModel
 {
-    public class ChangePasswordModel : PageModel
+    private readonly ApplicationDbContext _db;
+
+    public ChangePasswordModel(ApplicationDbContext db)
     {
-        [BindProperty]
-        public ChangePasswordVm Input { get; set; } = new();
-        public void OnGet() { }
+        _db = db;
+    }
 
-        public IActionResult OnPost()
+    [BindProperty]
+    public ChangePasswordVm Input { get; set; } = new();
+
+    public string? ErrorMessage { get; set; }
+    public string? SuccessMessage { get; set; }
+
+    public void OnGet()
+    {
+    }
+
+    public async Task<IActionResult> OnPostAsync()
+    {
+        if (!ModelState.IsValid)
+            return Page();
+
+        // Hämta UserId från cookie-claim
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!int.TryParse(userIdClaim, out var userId))
+            return RedirectToPage("/Account/Login");
+
+        // Hämta user från DB
+        var user = await _db.Users.SingleOrDefaultAsync(u => u.UserId == userId);
+        if (user == null)
+            return RedirectToPage("/Account/Login");
+
+        // Kontrollera nuvarande lösenord
+        if (!BCrypt.Net.BCrypt.Verify(Input.CurrentPassword, user.Password))
         {
-            if (!ModelState.IsValid)
-                return Page();
-
-            //Demo: ingen riktig lagring ännu
-            TempData["StatusMessage"] = "Lösenord uppdaterat (demo).";
-
-            return RedirectToPage("/Manage/Index");
+            ErrorMessage = "Nuvarande lösenord är fel.";
+            return Page();
         }
+
+        // Spara nytt lösenord (hash)
+        user.Password = BCrypt.Net.BCrypt.HashPassword(Input.NewPassword);
+        await _db.SaveChangesAsync();
+
+        SuccessMessage = "Lösenordet är uppdaterat!";
+        return Page();
     }
 }

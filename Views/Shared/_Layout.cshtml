@@ -25,12 +25,25 @@
 							<li class="nav-item">
 								<a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
 							</li>
-							@if (User.Identity.IsAuthenticated == true)
+							@if (User.Identity?.IsAuthenticated == true)
 							{
-								<li class="nav-item">
-									<a class="nav-link text-dark" asp-page="/Manage/ChangePassword">Byt lösenord</a>
-								</li>
+							<li class="nav-item">
+								<a class="nav-link text-dark" asp-page="/Manage/ChangePassword">Byt lösenord</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link text-dark" asp-page="/Account/Logout">Logga ut</a>
+							</li>
 							}
+							else
+							{
+							<li class="nav-item">
+								<a class="nav-link text-dark" asp-page="/Account/Login">Logga in</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link text-dark" asp-page="/Account/Register">Registrera</a>
+							</li>
+							}
+
 						</ul>
 					</div>
 				</div>
