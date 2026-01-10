@@ -1,31 +1,23 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace grupp6WebApp.Models
+namespace grupp6WebApp.Models;
+
+public class Profile
 {
-    [Table("Profile")]
-    public class Profile
-    {
-        [Key]
-        public int ProfileId { get; set; }
+    public int Id { get; set; }
 
-        [Required]
-        public int UserId { get; set; }
+    [Required]
+    public string IdentityUserId { get; set; } = string.Empty;
 
-        public string? Bio { get; set; }
+    [MaxLength(100)]
+    public string? FirstName { get; set; }
 
-        public string? Skills { get; set; } // Kompetenser
+    [MaxLength(100)]
+    public string? LastName { get; set; }
 
-        public string? Education { get; set; } // Utbildning
+    [EmailAddress]
+    public string? Email { get; set; }
 
-        public string? Experience { get; set; } // Erfarenhet
-
-        public bool IsPublic { get; set; } = true; // Privat/Offentlig
-
-        public string? ProfilePictureUrl { get; set; }
-
-        // Navigation property (Valfritt, men bra för att enkelt hämta tillhörande User)
-        [ForeignKey("UserId")]
-        public virtual User? User { get; set; }
-    }
+    [MaxLength(200)]
+    public string? Address { get; set; }
 }

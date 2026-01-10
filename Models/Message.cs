@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Identity;
 
 namespace grupp6WebApp.Models
 {
@@ -11,8 +12,9 @@ namespace grupp6WebApp.Models
 
         public string? SenderName { get; set; } // Namn för t.ex. anonyma avsändare
 
+        // Identity använder string som UserId
         [Required]
-        public int ReceiverUserId { get; set; } // Mottagarens ID
+        public string ReceiverUserId { get; set; } = string.Empty;
 
         [Required]
         [StringLength(255)]
@@ -21,12 +23,12 @@ namespace grupp6WebApp.Models
         [Required]
         public string Content { get; set; } = string.Empty;
 
-        public bool IsRead { get; set; } = false; // Markera som läst/oläst
+        public bool IsRead { get; set; } = false;
 
         public DateTime SentDate { get; set; } = DateTime.Now;
 
-        // Navigation property
-        [ForeignKey("ReceiverUserId")]
-        public virtual User? Receiver { get; set; }
+        // Navigation property till IdentityUser
+        [ForeignKey(nameof(ReceiverUserId))]
+        public IdentityUser? Receiver { get; set; }
     }
 }

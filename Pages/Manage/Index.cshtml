@@ -1,0 +1,35 @@
+﻿@page
+@model grupp6WebApp.Pages.Manage.IndexModel
+@{
+    ViewData["Title"] = "Hantera konto";
+}
+
+<h1>Hantera konto</h1>
+
+@if (TempData["StatusMessage"] is string msg && !string.IsNullOrWhiteSpace(msg))
+{
+    <div style="padding:10px; border; 1px solid #ccc; margin-bottom:12px;">
+        @msg
+    </div>
+}
+
+<p>Här är en översikt med länkar (demo). DB/Identity kopplas senare.</p>
+
+<ul>
+    <li><a href="/Profile">Profil</a></li>
+    <li><a href="Messages">Meddelanden</a></li>
+    <li><a href="/Projects">Projekt</a></li>
+</ul>
+
+<hr />
+<ul>
+    <li>
+        <a asp-page="/Manage/ChangePassword">Byt lösenord</a>
+    </li>
+    <li>
+        <a asp-page="/Account/Login">Login in</a>
+    </li>
+    <li>
+        <a asp-asp-page="/Account/Register">Registrera</a>
+    </li>
+</ul>

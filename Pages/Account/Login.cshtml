@@ -1,0 +1,36 @@
+﻿@page
+@model grupp6WebApp.Pages.Account.LoginModel
+@{
+    ViewData["Title"] = "Logga in";
+}
+
+<h1>Logga in</h1>
+
+<form method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div>
+        <label asp-for="Input.Email"></label>
+        <input asp-for="Input.Email" />
+        <span asp-validation-for="Input.Email" class="text-danger"></span>
+    </div>
+
+    <div>
+        <label asp-for="Input.Password"></label>
+        <input asp-for="Input.Password" />
+        <span asp-validation-for="Input.Password" class="text-danger"></span>
+    </div>
+
+    <button type="submit">Logga in</button>
+</form>
+
+<p>
+    Inget konto? <a asp-page="/Account/Register">Registrera</a>
+</p>
+<p>
+    (Demo) <a asp-page="Index">Till startsidan</a>
+</p>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
