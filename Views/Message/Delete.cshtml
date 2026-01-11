@@ -1,0 +1,17 @@
+﻿@model grupp6WebApp.Models.Message
+
+<h2>Ta bort meddelande</h2>
+
+<p>Är du säker på att du vill ta bort detta meddelande?</p>
+
+<p>
+    <strong>Ämne:</strong> @Model.Subject <br />
+    <strong>Från:</strong> @Model.SenderName
+</p>
+
+<form asp-action="Delete" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="id" value="@Model.MessageId" />
+    <button type="submit">Ja, ta bort</button>
+    <a asp-action="Inbox">Avbryt</a>
+</form>

@@ -1,0 +1,16 @@
+﻿@model grupp6WebApp.Models.Message
+
+<h2>@Model.Subject</h2>
+
+<p><strong>Från:</strong> @Model.SenderName</p>
+
+<p>@Model.Content</p>
+
+<a asp-action="Delete" asp-route-id="@Model.MessageId">Ta bort</a> |
+<a asp-action="Inbox">Tillbaka till inkorgen</a>
+
+<a asp-controller="Message"
+   asp-action="Create"
+   asp-route-receiverUserId="@Model.ReceiverUserId">
+    Svara
+</a>

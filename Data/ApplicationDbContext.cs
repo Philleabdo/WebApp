@@ -1,5 +1,4 @@
-﻿using group6WebApp.Models;
-using grupp6WebApp.Models;
+﻿using grupp6WebApp.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace grupp6WebApp.Data;

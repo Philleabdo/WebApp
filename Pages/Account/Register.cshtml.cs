@@ -1,5 +1,5 @@
 ﻿using BCrypt.Net;
-using group6WebApp.Models;
+using grupp6WebApp.Models;
 using grupp6WebApp.Data;
 using grupp6WebApp.Models;
 using grupp6WebApp.Models.ViewModels.Account;

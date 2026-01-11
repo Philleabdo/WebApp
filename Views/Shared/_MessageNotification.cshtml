@@ -1,0 +1,19 @@
+﻿@using grupp6WebApp.Data
+@using System.Security.Claims
+@inject ApplicationDbContext Context
+
+@if (User.Identity == null || !User.Identity.IsAuthenticated)
+{
+    <!-- Olästa mddelanden visas inte o man är utloggad -->
+}
+else
+{
+    int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+    int unreadCount = Context.Messages
+        .Count(m => m.ReceiverUserId == userId && !m.IsRead);
+
+    <a asp-controller="Message" asp-action="Inbox" class="nav-link text-dark">
+        Du har <strong>@unreadCount</strong> olästa meddelanden
+    </a>
+}

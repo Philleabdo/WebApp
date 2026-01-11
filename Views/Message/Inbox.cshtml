@@ -1,0 +1,28 @@
+﻿@model List<grupp6WebApp.Models.Message>
+
+<h2>Inkorg</h2>
+<a asp-action="Create">Skicka nytt meddelande</a>
+
+@if (!Model.Any())
+{
+    <p>Du har inga meddelanden.</p>
+}
+else
+{
+    <ul>
+        @foreach (var msg in Model)
+        {
+            <li>
+                <a asp-action="Details" asp-route-id="@msg.MessageId">
+                    @msg.Subject
+                </a>
+                – @msg.SenderName
+
+                @if (!msg.IsRead)
+                {
+                    <strong>(Oläst)</strong>
+                }
+            </li>
+        }
+    </ul>
+}

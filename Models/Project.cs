@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace group6WebApp.Models;
+namespace grupp6WebApp.Models;
 
 public class Project
 {

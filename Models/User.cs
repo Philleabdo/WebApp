@@ -1,7 +1,6 @@
-﻿using grupp6WebApp.Models;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace group6WebApp.Models;
+namespace grupp6WebApp.Models;
 
 public class User
 {

@@ -1,0 +1,44 @@
+﻿<h2>Skicka meddelande</h2>
+
+<form method="post">
+
+    @if (ViewBag.ReceiverUserId == null)
+    {
+        <div>
+            <label>Mottagare</label>
+            <select name="receiverUserId" required>
+                <option value="">Välj användare</option>
+                @foreach (var user in ViewBag.Users)
+                {
+                    <option value="@user.UserId">
+                        @user.FirstName @user.LastName
+                    </option>
+                }
+            </select>
+        </div>
+    }
+    else
+    {
+        <input type="hidden" name="receiverUserId" value="@ViewBag.ReceiverUserId" />
+    }
+
+    <div>
+        <label>Ämne</label>
+        <input type="text" name="subject" required />
+    </div>
+
+    <div>
+        <label>Meddelande</label>
+        <textarea name="content" required></textarea>
+    </div>
+
+    @if (!User.Identity!.IsAuthenticated)
+    {
+        <div>
+            <label>Ditt namn</label>
+            <input type="text" name="senderName" required />
+        </div>
+    }
+
+    <button type="submit">Skicka</button>
+</form>
