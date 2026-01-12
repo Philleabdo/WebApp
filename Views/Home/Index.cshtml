@@ -1,14 +1,43 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model List<grupp6WebApp.Models.Project>
+@{
+    ViewData["Title"] = "Startsida";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core @{
-    ViewData[""] = "Home Page";
-}</a>.</p>
+<div class="text-center mb-5">
+    <h1 class="display-4">Välkommen till Grupp 6 Portal</h1>
+    <p>Här hittar du våra senaste projekt och kompetenser.</p>
 </div>
 
-<a class="btn btn-primary" asp-page="/Account/Login">Logga in</a>
-<a class="btn btn-outline-primary" asp-page="/Account/Register">Skapa konto</a>
-
+<div class="container">
+    <h2 class="mb-4">Senaste projekten</h2>
+    <div class="row">
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var p in Model)
+            {
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">@p.Title</h5>
+                            <p class="card-text text-muted">
+                                @(p.Description?.Length > 100 ? p.Description.Substring(0, 100) + "..." : p.Description)
+                            </p>
+                        </div>
+                        <div class="card-footer bg-white border-top-0">
+                            <a asp-controller="Project" asp-action="Details" asp-route-id="@p.ProjectId" class="btn btn-outline-primary w-100">Läs mer</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12">
+                <div class="alert alert-info">
+                    Inga projekt hittades i databasen.
+                    <a asp-controller="Project" asp-action="Create">Klicka här för att skapa det första projektet!</a>
+                </div>
+            </div>
+        }
+    </div>
+</div>

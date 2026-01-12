@@ -1,0 +1,16 @@
+﻿@model grupp6WebApp.Models.Project
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<h1>@Model.Title</h1>
+<hr />
+<p><strong>Beskrivning:</strong> @Model.Description</p>
+<p><strong>Skapat:</strong> @Model.CreatedDate.ToShortDateString()</p>
+
+@if (Model.User != null)
+{
+    <p><strong>Ansvarig:</strong> @Model.User.FirstName @Model.User.LastName</p>
+}
+
+<a asp-action="Index" class="btn btn-secondary">Tillbaka till listan</a>

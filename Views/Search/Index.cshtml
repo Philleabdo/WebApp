@@ -1,0 +1,33 @@
+﻿@model List<grupp6WebApp.Models.Project>
+@{
+    ViewData["Title"] = "Sök";
+}
+
+<h1>Sök projekt</h1>
+
+<form method="get" class="mb-4">
+    <div class="input-group">
+        <input type="text" name="q" value="@ViewBag.Query" class="form-control" placeholder="Sök på titel eller innehåll..." />
+        <button type="submit" class="btn btn-primary">Sök</button>
+    </div>
+</form>
+
+@if (ViewBag.Query != null)
+{
+    <h3>Resultat för "@ViewBag.Query"</h3>
+    @if (!Model.Any())
+    {
+        <p>Inga matchningar hittades.</p>
+    }
+    else
+    {
+        <ul>
+            @foreach (var p in Model)
+            {
+                <li>
+                    <a asp-controller="Project" asp-action="Details" asp-route-id="@p.ProjectId">@p.Title</a>
+                </li>
+            }
+        </ul>
+    }
+}

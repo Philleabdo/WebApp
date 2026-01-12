@@ -1,0 +1,25 @@
+﻿@model List<grupp6WebApp.Models.Project>
+@{
+    ViewData["Title"] = "Projekt";
+}
+
+<h1>Projekt</h1>
+<p><a asp-action="Create" class="btn btn-primary">Skapa nytt projekt</a></p>
+
+@if (!Model.Any())
+{
+    <p>Inga projekt hittades.</p>
+}
+else
+{
+    <div class="list-group">
+        @foreach (var p in Model)
+        {
+            <div class="list-group-item">
+                <h5>@p.Title</h5>
+                <p>@(p.Description?.Length > 100 ? p.Description.Substring(0, 100) + "..." : p.Description)</p>
+                <a asp-action="Details" asp-route-id="@p.ProjectId">Visa detaljer</a>
+            </div>
+        }
+    </div>
+}
