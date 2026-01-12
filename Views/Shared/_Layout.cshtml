@@ -33,24 +33,7 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
 
-                        <!-- HOME -->
-                        <li class="nav-item">
-                            <a class="nav-link text-dark"
-                               asp-controller="Home"
-                               asp-action="Index">
-                                Home
-                            </a>
-                        </li>
-
-                        <!-- PRIVACY -->
-                        <li class="nav-item">
-                            <a class="nav-link text-dark"
-                               asp-controller="Home"
-                               asp-action="Privacy">
-                                Privacy
-                            </a>
-                        </li>
-
+                       
                        
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Project" asp-action="Index">Projekt</a>
@@ -62,24 +45,17 @@
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-page="/Manage/ChangePassword">
-                                    Byt lösenord
-                                </a>
+                                <span class="nav-link text-dark">Hej @User.Identity.Name!</span>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-page="/Account/Logout">
-                                    Logga ut
-                                </a>
+                                <a class="nav-link text-dark" asp-area="" asp-page="/Account/Logout">Logga ut</a>
                             </li>
                         }
                         else
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-page="/Account/Login">
-                                    Logga in
-                                </a>
+                                <a class="nav-link text-dark" asp-area="" asp-page="/Account/Login">Logga in</a>
                             </li>
-                            
                         }
                     </ul>
 
