@@ -20,9 +20,24 @@ public class ProjectController : Controller
     [AllowAnonymous]
     public async Task<IActionResult> Index()
     {
-        // Inkluderar ägaren för att kunna visa "Skapad av"
         var projects = await _context.Projects.Include(p => p.User).ToListAsync();
         return View(projects);
+    }
+
+    // --- DENNA METOD SAKNADES ---
+    [AllowAnonymous]
+    public async Task<IActionResult> Details(int id)
+    {
+        var project = await _context.Projects
+            .Include(p => p.User) // Krävs för att visa skaparens namn
+            .FirstOrDefaultAsync(p => p.ProjectId == id);
+
+        if (project == null)
+        {
+            return NotFound();
+        }
+
+        return View(project);
     }
 
     [HttpGet]
@@ -56,7 +71,6 @@ public class ProjectController : Controller
 
         if (project == null) return NotFound();
 
-        // SÄKERHETSKOLL: Endast den ursprungliga skaparen (UserId) får radera permanent
         if (project.UserId != currentUserId)
         {
             TempData["ErrorMessage"] = "Du kan bara radera projekt som du själv har skapat.";
