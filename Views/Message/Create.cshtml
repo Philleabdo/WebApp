@@ -1,44 +1,65 @@
-﻿<h2>Skicka meddelande</h2>
+﻿@model grupp6WebApp.Models.Message
+@{
+    ViewData["Title"] = "Skicka meddelande";
+}
 
-<form method="post">
+<div class="row justify-content-center py-5">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm border-0 p-4 p-md-5 bg-white no-hover">
+            <div class="mb-4">
+                <h2 class="fw-bold mb-1">Skicka meddelande</h2>
+                <p class="text-muted small">Välj en mottagare och starta en konversation</p>
+            </div>
 
-    @if (ViewBag.ReceiverUserId == null)
-    {
-        <div>
-            <label>Mottagare</label>
-            <select name="receiverUserId" required>
-                <option value="">Välj användare</option>
-                @foreach (var user in ViewBag.Users)
+            <form method="post">
+                @if (ViewBag.ReceiverUserId == null)
                 {
-                    <option value="@user.UserId">
-                        @user.FirstName @user.LastName
-                    </option>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-secondary uppercase small">Mottagare</label>
+                        <select name="receiverUserId" class="form-select form-select-lg bg-light border-0 shadow-none" required>
+                            <option value="">Välj en användare att kontakta...</option>
+                            @foreach (var user in ViewBag.Users)
+                            {
+                                <option value="@user.UserId">
+                                    @user.FirstName @user.LastName
+                                </option>
+                            }
+                        </select>
+                    </div>
                 }
-            </select>
+                else
+                {
+                    <input type="hidden" name="receiverUserId" value="@ViewBag.ReceiverUserId" />
+                }
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-secondary uppercase small">Ämne</label>
+                    <input type="text" name="subject" class="form-control form-control-lg bg-light border-0"
+                           placeholder="Vad handlar meddelandet om?" required />
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-semibold text-secondary uppercase small">Meddelande</label>
+                    <textarea name="content" class="form-control bg-light border-0" rows="5"
+                              placeholder="Skriv ditt meddelande här..." required></textarea>
+                </div>
+
+                @if (!User.Identity!.IsAuthenticated)
+                {
+                    <div class="mb-4 p-3 bg-light rounded-3 border-start border-primary border-4">
+                        <label class="form-label fw-semibold text-dark small">Ditt namn (Du skickar som gäst)</label>
+                        <input type="text" name="senderName" class="form-control border-0 shadow-none"
+                               placeholder="Ange ditt namn..." required />
+                    </div>
+                }
+
+                <div class="d-flex gap-3">
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 py-3 fw-bold flex-grow-1 shadow-sm transition-all">
+                        Skicka meddelande
+                    </button>
+                    <a href="javascript:history.back()" class="btn btn-outline-secondary rounded-pill px-4 py-3 fw-bold">Avbryt</a>
+                </div>
+            </form>
         </div>
-    }
-    else
-    {
-        <input type="hidden" name="receiverUserId" value="@ViewBag.ReceiverUserId" />
-    }
-
-    <div>
-        <label>Ämne</label>
-        <input type="text" name="subject" required />
     </div>
-
-    <div>
-        <label>Meddelande</label>
-        <textarea name="content" required></textarea>
-    </div>
-
-    @if (!User.Identity!.IsAuthenticated)
-    {
-        <div>
-            <label>Ditt namn</label>
-            <input type="text" name="senderName" required />
-        </div>
-    }
-
-    <button type="submit">Skicka</button>
-</form>
+</div>

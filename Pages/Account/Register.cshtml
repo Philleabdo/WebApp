@@ -1,62 +1,61 @@
 ﻿@page
 @model grupp6WebApp.Pages.Account.RegisterModel
 @{
-    ViewData["Title"] = "Registrera";
+    ViewData["Title"] = "Skapa konto";
 }
 
-<h1>Registrera</h1>
+<div class="row justify-content-center py-5">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm border-0 p-4 p-md-5 bg-white">
+            <h2 class="fw-bold text-center mb-2 text-dark">Bli medlem</h2>
+            <p class="text-center text-muted mb-4 small">Fyll i dina uppgifter för att börja skapa din profil</p>
 
-@if (!string.IsNullOrEmpty(Model.ErrorMessage))
-{
-    <div class="text-danger">@Model.ErrorMessage</div>
-}
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <div class="alert alert-danger border-0 rounded-3 shadow-sm">@Model.ErrorMessage</div>
+            }
 
-<form method="post">
-    <div>
-        <label asp-for="Input.FirstName"></label>
-        <input asp-for="Input.FirstName" />
-        <span asp-validation-for="Input.FirstName" class="text-danger"></span>
+            <form method="post">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Input.FirstName" class="form-label fw-medium text-secondary small uppercase">Förnamn</label>
+                        <input asp-for="Input.FirstName" class="form-control bg-light border-0" />
+                        <span asp-validation-for="Input.FirstName" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Input.LastName" class="form-label fw-medium text-secondary small uppercase">Efternamn</label>
+                        <input asp-for="Input.LastName" class="form-control bg-light border-0" />
+                        <span asp-validation-for="Input.LastName" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Input.Address" class="form-label fw-medium text-secondary small uppercase">Adress</label>
+                    <input asp-for="Input.Address" class="form-control bg-light border-0" />
+                    <span asp-validation-for="Input.Address" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Input.Email" class="form-label fw-medium text-secondary small uppercase">E-post</label>
+                    <input asp-for="Input.Email" class="form-control bg-light border-0" />
+                    <span asp-validation-for="Input.Email" class="text-danger small"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Input.Password" class="form-label fw-medium text-secondary small uppercase">Lösenord</label>
+                        <input asp-for="Input.Password" type="password" class="form-control bg-light border-0" />
+                        <span asp-validation-for="Input.Password" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <label asp-for="Input.ConfirmPassword" class="form-label fw-medium text-secondary small uppercase">Bekräfta</label>
+                        <input asp-for="Input.ConfirmPassword" type="password" class="form-control bg-light border-0" />
+                        <span asp-validation-for="Input.ConfirmPassword" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-sm transition-all">Skapa mitt konto</button>
+            </form>
+        </div>
     </div>
-
-    <div>
-        <label asp-for="Input.LastName"></label>
-        <input asp-for="Input.LastName" />
-        <span asp-validation-for="Input.LastName" class="text-danger"></span>
-    </div>
-
-    <div>
-        <label asp-for="Input.Address"></label>
-        <input asp-for="Input.Address" />
-        <span asp-validation-for="Input.Address" class="text-danger"></span>
-    </div>
-
-    <div>
-        <label asp-for="Input.Phone"></label>
-        <input asp-for="Input.Phone" />
-        <span asp-validation-for="Input.Phone" class="text-danger"></span>
-    </div>
-
-    <div>
-        <label asp-for="Input.Email"></label>
-        <input asp-for="Input.Email" />
-        <span asp-validation-for="Input.Email" class="text-danger"></span>
-    </div>
-
-    <div>
-        <label asp-for="Input.Password"></label>
-        <input asp-for="Input.Password" type="password" />
-        <span asp-validation-for="Input.Password" class="text-danger"></span>
-    </div>
-
-    <div>
-        <label asp-for="Input.ConfirmPassword"></label>
-        <input asp-for="Input.ConfirmPassword" type="password" />
-        <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
-    </div>
-
-    <button type="submit">Registrera</button>
-</form>
-
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}
+</div>

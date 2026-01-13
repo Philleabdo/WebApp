@@ -1,31 +1,189 @@
-html {
-  font-size: 14px;
+/* Importera modernt typsnitt (Inter) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+    --primary-blue: #007bff;
+    --light-blue-bg: #f4f9ff; /* Mycket ljusblå bakgrund */
+    --text-main: #333333;
 }
 
-@media (min-width: 768px) {
-  html {
+html {
     font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+    position: relative;
+    min-height: 100%;
 }
 
 body {
-  margin-bottom: 60px;
+    /* LiveCareer text-stil */
+    font-family: 'Inter', sans-serif;
+    background-color: var(--light-blue-bg);
+    color: var(--text-main);
+    margin-bottom: 60px;
+    -webkit-font-smoothing: antialiased;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+/* Header & Nav */
+.navbar {
+    transition: all 0.3s ease;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+.nav-link {
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+    .nav-link:hover {
+        color: var(--primary-blue) !important;
+    }
+
+.sticky-top {
+    border-bottom: 1px solid rgba(0,0,0,0.05) !important;
+}
+
+/* Knappar */
+.btn-primary {
+    background-color: var(--primary-blue);
+    border: none;
+    font-weight: 600;
+    padding: 8px 20px;
+    box-shadow: 0 2px 4px rgba(0,123,255,0.2);
+}
+
+    .btn-primary:hover {
+        background-color: #0069d9;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0,123,255,0.3);
+    }
+
+.rounded-pill {
+    border-radius: 50px !important;
+}
+
+/* Cards (för projekt och sökresultat) */
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    background-color: #ffffff;
+    transition: transform 0.2s ease;
+}
+
+    .card:hover {
+        transform: translateY(-5px);
+    }
+
+/* Footer */
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    white-space: nowrap;
+    line-height: 60px;
+}
+
+/* Fokus-ringar för tillgänglighet */
+.btn:focus, .form-control:focus {
+    box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+    border-color: var(--primary-blue);
+}
+
+/* Hjälpklasser för formulär */
+.bg-light {
+    background-color: #f8f9fa !important;
+}
+
+.uppercase {
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.75rem;
+}
+
+.transition-all {
+    transition: all 0.3s ease-in-out;
+}
+
+/* Förfina input-fälten så de ser ut som inspirationssidan */
+.form-control-lg {
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border-radius: 8px;
+}
+
+/* Se till att labels ser proffsiga ut */
+.form-label.fw-medium {
+    margin-bottom: 0.5rem;
+    display: inline-block;
+}
+
+/* Ta bort hover-effekt specifikt för Login och Register */
+.row.justify-content-center .card:hover {
+    transform: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05); /* Behåll standardskuggan */
+}
+
+/* Gör ikonerna lite mer interaktiva */
+.nav-link i.bi {
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.nav-link:hover i.bi {
+    color: var(--primary-blue) !important;
+    transform: scale(1.1);
+}
+
+/* Fixa till badgen så den inte ser klumpig ut på små ikoner */
+.badge.rounded-pill {
+    min-width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* --- FOOTER & SPECIAL --- */
+.bg-dark-soft {
+    background-color: #24292e !important; /* Mjuk mörkgrå */
+}
+
+.text-light-muted {
+    color: #adb5bd !important;
+}
+
+.footer-dark {
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Fix för att footern inte ska flyta */
+.footer {
+    position: static !important;
+    line-height: normal !important;
+}
+
+/* Dropdown styling */
+.dropdown-menu {
+    min-width: 210px;
+    padding: 10px;
+}
+
+.dropdown-item {
+    border-radius: 6px;
+    margin-bottom: 2px;
+    font-size: 0.9rem;
+    padding: 8px 12px;
+}
+
+    .dropdown-item:hover {
+        background-color: var(--light-blue-bg);
+        color: var(--primary-blue);
+    }
+
+/* --- IKONER --- */
+.bi-search, .bi-envelope, .bi-person-circle {
+    transition: transform 0.2s ease;
+}
+
+.nav-link:hover .bi {
+    transform: scale(1.1);
+    color: var(--primary-blue) !important;
 }
