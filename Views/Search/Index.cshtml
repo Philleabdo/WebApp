@@ -1,65 +1,100 @@
-﻿@model List<grupp6WebApp.Models.Project>
+﻿@model grupp6WebApp.Models.SearchResultsViewModel
 @{
-    ViewData["Title"] = "Sök projekt";
+    ViewData["Title"] = "Sök projekt och personer";
 }
 
 <div class="container py-4">
     <div class="text-center mb-5">
-        <h1 class="fw-bold display-5">Sök projekt</h1>
-        <p class="text-muted fs-5">Hitta inspiration och innovativa idéer i vår databas</p>
+        <h1 class="fw-bold display-5">Sök i portalen</h1>
+        <p class="text-muted fs-5">Hitta projekt, innovativa idéer och kompetenta kollegor</p>
     </div>
 
+    @* Sökfältet *@
     <div class="row justify-content-center mb-5">
         <div class="col-md-8">
             <div class="card shadow-sm border-0 p-2 rounded-pill bg-white">
                 <form method="get" class="d-flex align-items-center px-2">
-                    <input type="text" name="q" value="@ViewBag.Query"
+                    <input type="text" name="q" value="@Model.Query"
                            class="form-control border-0 bg-transparent py-3 ps-3 shadow-none"
-                           placeholder="Sök på titel eller innehåll..." />
+                           placeholder="Sök på namn, kompetens, titel..." />
                     <button type="submit" class="btn btn-primary rounded-pill px-4 py-2 fw-bold">Sök</button>
                 </form>
             </div>
         </div>
     </div>
 
-    @if (ViewBag.Query != null)
+    @if (!string.IsNullOrEmpty(Model.Query))
     {
-        <div class="mb-4">
+        <div class="mb-4 text-center">
             <h4 class="text-secondary fw-light">
-                Resultat för <span class="text-dark fw-bold italic">"@ViewBag.Query"</span>
+                Resultat för <span class="text-dark fw-bold italic">"@Model.Query"</span>
             </h4>
         </div>
 
-        @if (!Model.Any())
+        @if (!Model.Projects.Any() && !Model.Users.Any())
         {
             <div class="card shadow-sm border-0 p-5 text-center bg-white rounded-4">
                 <p class="text-muted fs-5 mb-0">Tyvärr hittade vi inga matchningar för din sökning.</p>
-                <a asp-action="Index" class="text-primary fw-bold text-decoration-none mt-3 d-inline-block">Visa alla projekt</a>
             </div>
         }
         else
         {
             <div class="row">
-                @foreach (var p in Model)
-                {
-                    <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="card h-100 shadow-sm border-0 transition-all">
-                            <div class="card-body p-4">
-                                <div class="mb-2">
-                                    <span class="badge bg-light text-primary rounded-pill px-3 py-2 uppercase fw-bold" style="font-size: 0.7rem;">Projekt</span>
+                @* --- VÄNSTER KOLUMN: PROJEKT --- *@
+                <div class="col-lg-6 mb-5">
+                    <h3 class="mb-4 fw-bold"><i class="bi bi-code-slash text-success"></i> Projekt (@Model.Projects.Count)</h3>
+                    <div class="row g-3">
+                        @foreach (var p in Model.Projects)
+                        {
+                            <div class="col-12">
+                                <div class="card h-100 shadow-sm border-0 position-relative">
+                                    <div class="card-body p-4">
+                                        <span class="badge bg-light text-success rounded-pill px-3 py-1 mb-2 fw-bold" style="font-size: 0.7rem;">Projekt</span>
+                                        <h5 class="fw-bold">@p.Title</h5>
+                                        <p class="text-secondary small mb-0">
+                                            @(p.Description?.Length > 100 ? p.Description.Substring(0, 100) + "..." : p.Description)
+                                        </p>
+                                        <a asp-controller="Project" asp-action="Details" asp-route-id="@p.ProjectId"
+                                           class="stretched-link"></a>
+                                    </div>
                                 </div>
-                                <h4 class="fw-bold mb-3">@p.Title</h4>
-                                <p class="text-secondary small line-clamp-3">
-                                    @(p.Description?.Length > 120 ? p.Description.Substring(0, 120) + "..." : p.Description)
-                                </p>
                             </div>
-                            <div class="card-footer bg-transparent border-0 p-4 pt-0">
-                                <a asp-controller="Project" asp-action="Details" asp-route-id="@p.ProjectId"
-                                   class="stretched-link text-primary fw-bold text-decoration-none small">Läs mer &rarr;</a>
-                            </div>
-                        </div>
+                        }
                     </div>
-                }
+                </div>
+
+                @* --- HÖGER KOLUMN: PERSONER --- *@
+                <div class="col-lg-6 mb-5">
+                    <h3 class="mb-4 fw-bold"><i class="bi bi-people-fill text-primary"></i> Personer (@Model.Users.Count)</h3>
+                    <div class="row g-3">
+                        @foreach (var user in Model.Users)
+                        {
+                            <div class="col-12">
+                                <div class="card h-100 shadow-sm border-0 position-relative">
+                                    <div class="card-body p-3 d-flex align-items-center">
+                                        @if (!string.IsNullOrEmpty(user.Profile?.ProfilePictureUrl))
+                                        {
+                                            <img src="@user.Profile.ProfilePictureUrl" class="rounded-circle me-3"
+                                                 style="width: 60px; height: 60px; object-fit: cover;" />
+                                        }
+                                        else
+                                        {
+                                            <img src="/images/default-profile.png" class="rounded-circle me-3" style="width: 60px;" />
+                                        }
+
+                                        <div class="flex-grow-1">
+                                            <span class="badge bg-light text-primary rounded-pill px-3 py-1 mb-1 fw-bold" style="font-size: 0.7rem;">Profil</span>
+                                            <h5 class="fw-bold mb-0">@user.FirstName @user.LastName</h5>
+                                            <small class="text-muted">@(user.Profile?.Category ?? "Medlem")</small>
+                                        </div>
+                                        <a asp-controller="User" asp-action="PublicProfile" asp-route-id="@user.UserId"
+                                           class="stretched-link"></a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
             </div>
         }
     }

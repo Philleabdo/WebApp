@@ -21,13 +21,23 @@ namespace grupp6WebApp.Controllers
 
         public async Task<IActionResult> Index()
         {
-            // Nu kommer denna rad att fungera!
-            var latestProjects = await _context.Projects
+            var viewModel = new HomeIndexViewModel();
+
+            // 1. Hämta de 3 senaste projekten (som innan)
+            viewModel.LatestProjects = await _context.Projects
                 .OrderByDescending(p => p.CreatedDate)
                 .Take(3)
                 .ToListAsync();
 
-            return View(latestProjects);
+            // 2. Hämta 3 föreslagna användare
+            // FILTER: Måste vara IsActive OCH ha en profil som är IsPublic
+            viewModel.SuggestedUsers = await _context.Users
+                .Include(u => u.Profile)
+                .Where(u => u.IsActive && u.Profile != null && u.Profile.IsPublic)
+                .Take(3)
+                .ToListAsync();
+
+            return View(viewModel);
         }
 
         public IActionResult Privacy()

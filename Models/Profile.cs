@@ -15,11 +15,10 @@ public class Profile
     public string? Experience { get; set; }
     public bool IsPublic { get; set; } = true;
     public string? ProfilePictureUrl { get; set; }
-    // public int ViewCount { get; set; } = 0;
 
-    // NYA FÄLT HÄR:
-    public int ViewCount { get; set; } = 0; // Standardvärde 0
-    public string? Category { get; set; }  // Kan vara null (t.ex. Frontend/Backend)
+    // De nya fälten som din vän har lagt till i databasen:
+    public int ViewCount { get; set; } = 0;
+    public string? Category { get; set; }
 
     public User? User { get; set; }
 }

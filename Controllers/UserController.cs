@@ -179,39 +179,77 @@ public class UserController : Controller
         parent.AppendChild(node);
     }
 
-    [HttpGet]
-    public IActionResult ChangePassword()
-    {
-        return View();
-    }
-
     [HttpPost]
-    public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeactivateAccount()
     {
-        if (!ModelState.IsValid) return View(model);
-
+        // 1. Hämta den inloggade användarens ID
         var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
         if (!int.TryParse(userIdClaim, out var userId)) return RedirectToAction("Login", "Account");
 
+        // 2. Hämta användaren från databasen
         var user = await _db.Users.FindAsync(userId);
-        if (user == null) return NotFound();
 
-        // --- HÄR ANVÄNDER VI BCRYPT ISTÄLLET FÖR PASSWORDHASHER ---
-        bool isValid = BCrypt.Net.BCrypt.Verify(model.OldPassword, user.Password);
-
-        if (!isValid)
+        if (user != null)
         {
-            ModelState.AddModelError("OldPassword", "Det gamla lösenordet är felaktigt.");
-            return View(model);
+            // 3. Sätt IsActive till false istället för att radera
+            user.IsActive = false;
+            await _db.SaveChangesAsync();
+
+            // 4. Logga ut användaren (eftersom kontot nu är inaktivt)
+            // OBS: Dubbelkolla att din Logout-action ligger i Account-controllern
+            return RedirectToAction("Logout", "Account");
         }
 
-        // Hasha det nya lösenordet med BCrypt
-        user.Password = BCrypt.Net.BCrypt.HashPassword(model.NewPassword);
-        // -----------------------------------------------------------
-
-        await _db.SaveChangesAsync();
-
-        TempData["SuccessMessage"] = "Ditt lösenord har uppdaterats!";
         return RedirectToAction("Profile");
     }
+
+    [AllowAnonymous] // Gör så att även de som inte är inloggade kan se offentliga profiler
+    public async Task<IActionResult> PublicProfile(int id)
+    {
+        // 1. Hämta användaren och deras profil
+        var user = await _db.Users
+            .Include(u => u.Profile)
+            .Include(u => u.Projects)
+            .SingleOrDefaultAsync(u => u.UserId == id);
+
+        // 2. Säkerhetskoll: Om användaren inte finns, är inaktiv eller har privat profil -> Visa ej
+        if (user == null || !user.IsActive || (user.Profile != null && !user.Profile.IsPublic))
+        {
+            return NotFound("Profilen är inte tillgänglig.");
+        }
+
+        // 3. Öka ViewCount! 
+        // Vi kollar så att det inte är användaren själv som tittar på sin egen profil
+        var currentUserIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (currentUserIdClaim == null || int.Parse(currentUserIdClaim) != user.UserId)
+        {
+            if (user.Profile != null)
+            {
+                user.Profile.ViewCount++; // Öka med 1
+                await _db.SaveChangesAsync();
+            }
+        }
+
+        // 4. Mappa till ViewModel (precis som i din vanliga Profile-metod)
+        var viewModel = new CVViewModel
+        {
+            UserId = user.UserId,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            Email = user.Email,
+            Address = user.Address,
+            Phone = user.Phone,
+            Bio = user.Profile?.Bio,
+            Skills = user.Profile?.Skills,
+            Education = user.Profile?.Education,
+            Experience = user.Profile?.Experience,
+            ViewCount = user.Profile?.ViewCount ?? 0,
+            ProfilePictureUrl = user.Profile?.ProfilePictureUrl,
+            Projects = user.Projects.Select(p => p.Title).ToList()
+        };
+
+        return View(viewModel);
+    }
+
 }

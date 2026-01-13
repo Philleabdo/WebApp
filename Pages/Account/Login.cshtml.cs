@@ -32,27 +32,33 @@ namespace grupp6WebApp.Pages.Account
             if (!ModelState.IsValid)
                 return Page();
 
-            // Rensa eventuella mellanslag i e-posten
             var email = Input.Email.Trim();
 
-            // Hämta användaren från din egen User-tabell
+            // 1. Hämta användaren
             var user = await _db.Users.SingleOrDefaultAsync(u => u.Email == email);
 
-            // Kontrollera om användaren finns och att lösenordet (BCrypt) stämmer
+            // 2. Kontrollera om användaren finns och att lösenordet stämmer
             if (user == null || !BCrypt.Net.BCrypt.Verify(Input.Password, user.Password))
             {
                 ErrorMessage = "Fel e-post eller lösenord.";
                 return Page();
             }
 
-            // Skapa de uppgifter (Claims) som ska sparas i din Cookie
-            var claims = new List<Claim>
+            // --- 3. ÄNDRAT HÄR: Skicka till Reactivate-vyn istället för att bara logga in ---
+            if (!user.IsActive)
             {
-                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-                new Claim(ClaimTypes.Email, user.Email),
-                // Detta Name används av @User.Identity.Name i din _Layout
-                new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}")
-            };
+                // Vi skickar användaren till den nya sidan och skickar med deras ID i adressfältet
+                return RedirectToPage("/Account/Reactivate", new { userId = user.UserId });
+            }
+            // -------------------------------------------------------------------------------
+
+            // 4. Skapa Claims för inloggningen (om de är aktiva)
+            var claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+        new Claim(ClaimTypes.Email, user.Email),
+        new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}")
+    };
 
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
@@ -64,13 +70,12 @@ namespace grupp6WebApp.Pages.Account
                     : DateTimeOffset.UtcNow.AddHours(2)
             };
 
-            // LOGGA IN: Skapar cookien "group6.auth" i webbläsaren
+            // 5. Logga in
             await HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 new ClaimsPrincipal(claimsIdentity),
                 authProps);
 
-            // Redirectar till HomeController Index (din MVC-startsida)
             return RedirectToRoute(new { controller = "Home", action = "Index" });
         }
     }

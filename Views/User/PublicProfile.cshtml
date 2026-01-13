@@ -1,0 +1,61 @@
+﻿@model grupp6WebApp.Models.CVViewModel
+
+@{
+    ViewData["Title"] = Model.FirstName + "s Profil";
+}
+
+<div class="container mt-5">
+    <div class="row">
+        @* Vänster: Bild och Basinfo *@
+        <div class="col-md-4 text-center">
+            @if (!string.IsNullOrEmpty(Model.ProfilePictureUrl))
+            {
+                <img src="@Model.ProfilePictureUrl" class="img-fluid rounded-circle shadow" style="width: 200px; height: 200px; object-fit: cover;" />
+            }
+            else
+            {
+                <img src="/images/default-profile.png" class="img-fluid rounded-circle shadow" style="width: 200px;" />
+            }
+            <h2 class="mt-3">@Model.FirstName @Model.LastName</h2>
+            <p class="text-muted"><i class="bi bi-envelope"></i> @Model.Email</p>
+
+            <div class="mb-3">
+                <span class="badge bg-light text-dark border">
+                    <i class="bi bi-eye-fill text-primary"></i> <strong>@Model.ViewCount</strong> visningar
+                </span>
+            </div>
+
+            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary mt-3">
+                <i class="bi bi-arrow-left"></i> Tillbaka till start
+            </a>
+        </div>
+
+        @* Höger: CV-detaljer *@
+        <div class="col-md-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h4 class="text-primary border-bottom pb-2">Om @Model.FirstName</h4>
+                    <p style="white-space: pre-wrap;">@Model.Bio</p>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h4 class="text-primary border-bottom pb-2">Kompetenser</h4>
+                    <p>@Model.Skills</p>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h4 class="text-primary border-bottom pb-2">Erfarenhet</h4>
+                    <h5>Utbildning</h5>
+                    <p>@Model.Education</p>
+                    <hr />
+                    <h5>Arbetslivserfarenhet</h5>
+                    <p>@Model.Experience</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
