@@ -1,0 +1,103 @@
+﻿@model grupp6WebApp.Models.CVViewModel
+
+@{
+    ViewData["Title"] = "Edit Profile";
+}
+
+<div class="container mt-4">
+    <h2>Edit My Profile</h2>
+    <hr />
+
+    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+        <input type="hidden" asp-for="UserId" />
+
+        <div class="row">
+            @* Personuppgifter (User-tabellen) *@
+            <div class="col-md-6">
+                <h4>Personal Information</h4>
+                <div class="mb-3">
+                    <label asp-for="FirstName" class="form-label font-weight-bold"></label>
+                    <input asp-for="FirstName" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label asp-for="LastName" class="form-label font-weight-bold"></label>
+                    <input asp-for="LastName" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Address" class="form-label font-weight-bold"></label>
+                    <input asp-for="Address" class="form-control" />
+                </div>
+            </div>
+
+            @* CV-uppgifter (Profile-tabellen) *@
+            <div class="col-md-6">
+                <h4>CV Details</h4>
+                <div class="mb-3">
+                    <label asp-for="Bio" class="form-label font-weight-bold"></label>
+                    <textarea asp-for="Bio" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Skills" class="form-label font-weight-bold">Skills (separate with comma)</label>
+                    <input asp-for="Skills" class="form-control" placeholder="C#, SQL, Management" />
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Education" class="form-label font-weight-bold"></label>
+                    <textarea asp-for="Education" class="form-control" rows="2"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Experience" class="form-label font-weight-bold"></label>
+                    <textarea asp-for="Experience" class="form-control" rows="2"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" asp-for="IsPublic" id="isPublicCheck">
+                    <label class="form-check-label" for="isPublicCheck">Make profile public</label>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label font-weight-bold">Profile Picture</label>
+                    <input type="file" name="profileImage" class="form-control" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card border-primary shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title text-primary">
+                            <i class="bi bi-link-45deg"></i> Connect Project to Profile
+                        </h5>
+                        <p class="small text-muted">
+                            Choose a project from the list below to display it on your CV.
+                            Note: This will set you as the owner of that project.
+                        </p>
+
+                        <div class="input-group">
+                            <label class="input-group-text" for="projectSelect">Available Projects</label>
+                            @* Name="selectedProjectId" är viktigt för att controllern ska kunna läsa valet *@
+                            <select name="selectedProjectId" class="form-select" id="projectSelect">
+                                <option value="">-- Select a project to claim --</option>
+                                @if (ViewBag.AllProjects != null)
+                                {
+                                    @foreach (var p in (IEnumerable<grupp6WebApp.Models.Project>)ViewBag.AllProjects)
+                                    {
+                                        <option value="@p.ProjectId">@p.Title</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-success px-5">Save Changes</button>
+            <a asp-action="Profile" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
