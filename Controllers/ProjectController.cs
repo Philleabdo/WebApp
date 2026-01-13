@@ -2,9 +2,12 @@
 using Microsoft.EntityFrameworkCore;
 using grupp6WebApp.Data;
 using grupp6WebApp.Models;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace grupp6WebApp.Controllers;
 
+[Authorize]
 public class ProjectController : Controller
 {
     private readonly ApplicationDbContext _context;
@@ -14,23 +17,11 @@ public class ProjectController : Controller
         _context = context;
     }
 
-    // Listar alla projekt
+    [AllowAnonymous]
     public async Task<IActionResult> Index()
     {
-        var projects = await _context.Projects.ToListAsync();
-        return View(projects); // Skickar List<Project> direkt
-    }
-
-    // Detaljer för ett projekt
-    public async Task<IActionResult> Details(int id)
-    {
-        var project = await _context.Projects
-            .Include(p => p.User)
-            .FirstOrDefaultAsync(p => p.ProjectId == id);
-
-        if (project == null) return NotFound();
-
-        return View(project); // Skickar Project-objektet direkt
+        var projects = await _context.Projects.Include(p => p.User).ToListAsync();
+        return View(projects);
     }
 
     [HttpGet]
@@ -40,12 +31,11 @@ public class ProjectController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(Project project)
     {
-        if (ModelState.IsValid)
+        var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userIdStr != null)
         {
+            project.UserId = int.Parse(userIdStr);
             project.CreatedDate = DateTime.Now;
-            // För teständamål sätter vi UserId till 1 (se till att User med ID 1 finns i DB)
-            project.UserId = 1;
-
             _context.Projects.Add(project);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
@@ -53,27 +43,25 @@ public class ProjectController : Controller
         return View(project);
     }
 
-    // GET: Project/Edit/5
-    public async Task<IActionResult> Edit(int id)
-    {
-        var project = await _context.Projects.FindAsync(id);
-        if (project == null) return NotFound();
-        return View(project);
-    }
-
-    // POST: Project/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, Project project)
+    public async Task<IActionResult> Delete(int id)
     {
-        if (id != project.ProjectId) return NotFound();
+        var currentUserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+        var project = await _context.Projects.FindAsync(id);
 
-        if (ModelState.IsValid)
+        if (project == null) return NotFound();
+
+        // SÄKERHETSKOLL: Endast skaparen får radera projektet permanent från systemet
+        if (project.UserId != currentUserId)
         {
-            _context.Update(project);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return Forbid();
         }
-        return View(project);
+
+        _context.Projects.Remove(project);
+        await _context.SaveChangesAsync();
+        TempData["SuccessMessage"] = "Projektet raderades permanent.";
+
+        return RedirectToAction(nameof(Index));
     }
 }

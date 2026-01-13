@@ -1,103 +1,126 @@
 ﻿@model grupp6WebApp.Models.CVViewModel
 
 @{
-    ViewData["Title"] = "Edit Profile";
+    ViewData["Title"] = "Redigera Profil";
 }
 
-<div class="container mt-4">
-    <h2>Edit My Profile</h2>
-    <hr />
-
-    <form asp-action="Edit" method="post" enctype="multipart/form-data">
-        <input type="hidden" asp-for="UserId" />
-
-        <div class="row">
-            @* Personuppgifter (User-tabellen) *@
-            <div class="col-md-6">
-                <h4>Personal Information</h4>
-                <div class="mb-3">
-                    <label asp-for="FirstName" class="form-label font-weight-bold"></label>
-                    <input asp-for="FirstName" class="form-control" />
-                </div>
-                <div class="mb-3">
-                    <label asp-for="LastName" class="form-label font-weight-bold"></label>
-                    <input asp-for="LastName" class="form-control" />
-                </div>
-                <div class="mb-3">
-                    <label asp-for="Address" class="form-label font-weight-bold"></label>
-                    <input asp-for="Address" class="form-control" />
-                </div>
+<div class="row justify-content-center py-5">
+    <div class="col-lg-10 col-xl-8">
+        <div class="card shadow-sm border-0 p-4 p-md-5 bg-white no-hover">
+            <div class="text-center mb-5">
+                <i class="bi bi-pencil-square text-primary display-4"></i>
+                <h2 class="fw-bold mt-2">Redigera min profil</h2>
             </div>
 
-            @* CV-uppgifter (Profile-tabellen) *@
-            <div class="col-md-6">
-                <h4>CV Details</h4>
-                <div class="mb-3">
-                    <label asp-for="Bio" class="form-label font-weight-bold"></label>
-                    <textarea asp-for="Bio" class="form-control" rows="3"></textarea>
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success border-0 shadow-sm alert-dismissible fade show mb-4" role="alert">
+                    <i class="bi bi-check-circle-fill me-2"></i> @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-                <div class="mb-3">
-                    <label asp-for="Skills" class="form-label font-weight-bold">Skills (separate with comma)</label>
-                    <input asp-for="Skills" class="form-control" placeholder="C#, SQL, Management" />
-                </div>
-                <div class="mb-3">
-                    <label asp-for="Education" class="form-label font-weight-bold"></label>
-                    <textarea asp-for="Education" class="form-control" rows="2"></textarea>
-                </div>
-                <div class="mb-3">
-                    <label asp-for="Experience" class="form-label font-weight-bold"></label>
-                    <textarea asp-for="Experience" class="form-control" rows="2"></textarea>
-                </div>
-            </div>
-        </div>
+            }
 
-        <div class="row mt-3">
-            <div class="col-md-6">
-                <div class="form-check form-switch mb-3">
-                    <input class="form-check-input" type="checkbox" asp-for="IsPublic" id="isPublicCheck">
-                    <label class="form-check-label" for="isPublicCheck">Make profile public</label>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label font-weight-bold">Profile Picture</label>
-                    <input type="file" name="profileImage" class="form-control" />
-                </div>
-            </div>
-        </div>
+            <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                <input type="hidden" asp-for="UserId" />
 
-        <div class="row mt-4">
-            <div class="col-md-12">
-                <div class="card border-primary shadow-sm mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title text-primary">
-                            <i class="bi bi-link-45deg"></i> Connect Project to Profile
-                        </h5>
-                        <p class="small text-muted">
-                            Choose a project from the list below to display it on your CV.
-                            Note: This will set you as the owner of that project.
-                        </p>
+                <div class="row g-4">
+                    @* Personuppgifter *@
+                    <div class="col-md-6">
+                        <div class="p-3 rounded-3 bg-light-blue-subtle border-start border-primary border-4 mb-4">
+                            <h5 class="fw-bold mb-0 text-dark">Personuppgifter</h5>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="FirstName" class="form-label fw-semibold text-secondary small uppercase">Förnamn</label>
+                            <input asp-for="FirstName" class="form-control form-control-lg bg-light border-0" />
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="LastName" class="form-label fw-semibold text-secondary small uppercase">Efternamn</label>
+                            <input asp-for="LastName" class="form-control form-control-lg bg-light border-0" />
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Address" class="form-label fw-semibold text-secondary small uppercase">Adress</label>
+                            <input asp-for="Address" class="form-control form-control-lg bg-light border-0" />
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold text-secondary small uppercase">Profilbild</label>
+                            @if (Model.ProfilePictureUrl != "/images/FolioAccountPofile.png")
+                            {
+                                <div class="d-flex align-items-center mb-3 p-2 border rounded bg-light">
+                                    <img src="@Model.ProfilePictureUrl" class="rounded-circle me-3" style="width: 60px; height: 60px; object-fit: cover;" />
+                                    <button type="button" class="btn btn-sm btn-danger rounded-pill shadow-sm" onclick="if(confirm('Vill du verkligen ta bort din profilbild?')) { document.getElementById('removePicForm').submit(); }">
+                                        <i class="bi bi-trash me-1"></i> Ta bort bild
+                                    </button>
+                                </div>
+                            }
+                            <input type="file" name="profileImage" class="form-control form-control-lg bg-light border-0" />
+                        </div>
+                    </div>
 
-                        <div class="input-group">
-                            <label class="input-group-text" for="projectSelect">Available Projects</label>
-                            @* Name="selectedProjectId" är viktigt för att controllern ska kunna läsa valet *@
-                            <select name="selectedProjectId" class="form-select" id="projectSelect">
-                                <option value="">-- Select a project to claim --</option>
-                                @if (ViewBag.AllProjects != null)
-                                {
-                                    @foreach (var p in (IEnumerable<grupp6WebApp.Models.Project>)ViewBag.AllProjects)
-                                    {
-                                        <option value="@p.ProjectId">@p.Title</option>
-                                    }
-                                }
-                            </select>
+                    @* CV-uppgifter *@
+                    <div class="col-md-6">
+                        <div class="p-3 rounded-3 bg-light-blue-subtle border-start border-primary border-4 mb-4">
+                            <h5 class="fw-bold mb-0 text-dark">CV & Detaljer</h5>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Bio" class="form-label fw-semibold text-secondary small uppercase">Om mig</label>
+                            <textarea asp-for="Bio" class="form-control bg-light border-0" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Skills" class="form-label fw-semibold text-secondary small uppercase">Färdigheter</label>
+                            <input asp-for="Skills" class="form-control bg-light border-0" />
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Education" class="form-label fw-semibold text-secondary small uppercase">Utbildning</label>
+                            <textarea asp-for="Education" class="form-control bg-light border-0" rows="2"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Experience" class="form-label fw-semibold text-secondary small uppercase">Erfarenhet</label>
+                            <textarea asp-for="Experience" class="form-control bg-light border-0" rows="2"></textarea>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <div class="mt-4">
-            <button type="submit" class="btn btn-success px-5">Save Changes</button>
-            <a asp-action="Profile" class="btn btn-secondary">Cancel</a>
+                <hr class="my-5 opacity-25">
+
+                @* Projektväljare *@
+                <div class="card bg-light border-0 p-4 mb-5 rounded-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-link-45deg fs-3 text-primary me-2"></i>
+                        <h5 class="fw-bold mb-0">Visa projekt på mitt CV</h5>
+                    </div>
+                    <div class="row g-3">
+                        @if (ViewBag.AllProjects != null)
+                        {
+                            foreach (var p in (IEnumerable<grupp6WebApp.Models.Project>)ViewBag.AllProjects)
+                            {
+                                <div class="col-md-6">
+                                    <div class="form-check p-3 border rounded bg-white shadow-sm h-100">
+                                        <input class="form-check-input ms-0 me-2" type="checkbox" name="selectedProjectIds"
+                                               value="@p.ProjectId" id="p_@p.ProjectId"
+                                               @(Model.Projects.Contains(p.Title) ? "checked" : "")>
+                                        <label class="form-check-label fw-bold d-block" for="p_@p.ProjectId">@p.Title</label>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+
+                <div class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-4">
+                    <div class="form-check form-switch custom-switch">
+                        <input class="form-check-input" type="checkbox" asp-for="IsPublic" id="isPublicCheck" style="width: 2.5em; height: 1.25em;">
+                        <label class="form-check-label fw-semibold ms-2" for="isPublicCheck">Offentlig profil</label>
+                    </div>
+                    <div class="d-flex gap-3">
+                        <a asp-action="Profile" class="btn btn-outline-secondary rounded-pill px-4 fw-bold">Avbryt</a>
+                        <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold shadow-sm">Spara ändringar</button>
+                    </div>
+                </div>
+            </form>
         </div>
-    </form>
+    </div>
 </div>
+
+<form id="removePicForm" asp-action="RemoveProfilePicture" method="post" style="display:none;">
+    @Html.AntiForgeryToken()
+</form>

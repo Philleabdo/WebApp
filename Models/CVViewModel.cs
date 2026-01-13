@@ -13,6 +13,8 @@ namespace grupp6WebApp.Models
         public string LastName { get; set; } = string.Empty;
 
         public string Email { get; set; } = string.Empty;
+
+        public string? Category { get; set; }
         public string Address { get; set; } = string.Empty;
         public string? Phone { get; set; }
 

@@ -1,25 +1,44 @@
-﻿@model List<grupp6WebApp.Models.Project>
+﻿@using System.Security.Claims
+@model List<grupp6WebApp.Models.Project>
 @{
     ViewData["Title"] = "Projekt";
 }
 
-<h1>Projekt</h1>
-<p><a asp-action="Create" class="btn btn-primary">Skapa nytt projekt</a></p>
-
-@if (!Model.Any())
-{
-    <p>Inga projekt hittades.</p>
-}
-else
-{
-    <div class="list-group">
-        @foreach (var p in Model)
-        {
-            <div class="list-group-item">
-                <h5>@p.Title</h5>
-                <p>@(p.Description?.Length > 100 ? p.Description.Substring(0, 100) + "..." : p.Description)</p>
-                <a asp-action="Details" asp-route-id="@p.ProjectId">Visa detaljer</a>
-            </div>
-        }
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Projektbanken</h1>
+        <a asp-action="Create" class="btn btn-primary rounded-pill px-4">Skapa nytt projekt</a>
     </div>
-}
+
+    @if (!Model.Any())
+    {
+        <p>Inga projekt hittades.</p>
+    }
+    else
+    {
+        <div class="row g-3">
+            @foreach (var p in Model)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body">
+                            <h5 class="fw-bold">@p.Title</h5>
+                            <p class="text-muted small">@(p.Description?.Length > 100 ? p.Description.Substring(0, 100) + "..." : p.Description)</p>
+                        </div>
+                        <div class="card-footer bg-white border-0 d-flex gap-2 pb-3">
+                            <a asp-action="Details" asp-route-id="@p.ProjectId" class="btn btn-sm btn-outline-primary rounded-pill flex-grow-1">Visa</a>
+
+                            @if (User.FindFirstValue(ClaimTypes.NameIdentifier) == p.UserId.ToString())
+                            {
+                                <form asp-action="Delete" asp-controller="Project" asp-route-id="@p.ProjectId" method="post"
+                                      onsubmit="return confirm('Varning: Detta raderar projektet för ALLA. Fortsätt?');">
+                                    <button type="submit" class="btn btn-sm btn-danger rounded-pill px-3">Radera</button>
+                                </form>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

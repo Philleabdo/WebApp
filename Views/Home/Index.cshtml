@@ -17,7 +17,7 @@
             @foreach (var user in Model.SuggestedUsers)
             {
                 <div class="col-md-4 mb-4">
-                    <div class="card h-100 shadow-sm border-0 text-center p-3">
+                    <div class="card h-100 shadow-sm border-0 text-center p-3 static-card">
                         <div class="d-flex justify-content-center">
                             @if (!string.IsNullOrEmpty(user.Profile?.ProfilePictureUrl))
                             {
@@ -26,16 +26,16 @@
                             }
                             else
                             {
-                                <img src="/images/default-profile.png" class="rounded-circle shadow-sm"
-                                     style="width: 120px;" alt="Standardbild" />
+                                @* HÄR HAR VI UPPDATERAT TILL DIN NYA STANDARDBILD *@
+                                <img src="/images/FolioAccountPofile.png" class="rounded-circle shadow-sm"
+                                     style="width: 120px; height: 120px; object-fit: cover;" alt="Standardbild" />
                             }
                         </div>
                         <div class="card-body">
-                            <h5 class="card-title">@user.FirstName @user.LastName</h5>
-                            <p class="text-muted mb-3">@(user.Profile?.Category ?? "Medlem")</p>
+                            <h5 class="card-title fw-bold">@user.FirstName @user.LastName</h5>
+                            <p class="text-primary mb-3">@(user.Profile?.Category ?? "Medlem")</p>
 
-                            @* Denna länk går till en vy där man bara kan titta *@
-                            <a asp-controller="User" asp-action="PublicProfile" asp-route-id="@user.UserId" class="btn btn-primary rounded-pill w-100">
+                            <a asp-controller="User" asp-action="PublicProfile" asp-route-id="@user.UserId" class="btn btn-primary rounded-pill w-100 fw-bold shadow-sm">
                                 Visa profil
                             </a>
                         </div>
@@ -52,10 +52,10 @@
     </div>
 </div>
 
-<hr class="my-5" />
+<hr class="my-5 opacity-25" />
 
-@* --- DIN BEFINTLIGA PROJEKT-SEKTION (ORÖRD) --- *@
-<div class="container">
+@* --- PROJEKT-SEKTION --- *@
+<div class="container pb-5">
     <h2 class="mb-4">Senaste projekten</h2>
     <div class="row">
         @if (Model.LatestProjects != null && Model.LatestProjects.Any())
@@ -63,15 +63,15 @@
             @foreach (var p in Model.LatestProjects)
             {
                 <div class="col-md-4 mb-3">
-                    <div class="card h-100 shadow-sm">
+                    <div class="card h-100 shadow-sm border-0 bg-white static-card">
                         <div class="card-body">
-                            <h5 class="card-title">@p.Title</h5>
-                            <p class="card-text text-muted">
+                            <h5 class="card-title fw-bold text-dark">@p.Title</h5>
+                            <p class="card-text text-secondary">
                                 @(p.Description?.Length > 100 ? p.Description.Substring(0, 100) + "..." : p.Description)
                             </p>
                         </div>
-                        <div class="card-footer bg-white border-top-0">
-                            <a asp-controller="Project" asp-action="Details" asp-route-id="@p.ProjectId" class="btn btn-outline-primary w-100">Läs mer</a>
+                        <div class="card-footer bg-white border-top-0 pb-4">
+                            <a asp-controller="Project" asp-action="Details" asp-route-id="@p.ProjectId" class="btn btn-outline-primary w-100 rounded-pill fw-bold">Läs mer</a>
                         </div>
                     </div>
                 </div>
@@ -80,9 +80,9 @@
         else
         {
             <div class="col-12">
-                <div class="alert alert-info">
+                <div class="alert alert-info border-0 shadow-sm">
                     Inga projekt hittades i databasen.
-                    <a asp-controller="Project" asp-action="Create">Klicka här för att skapa det första projektet!</a>
+                    <a asp-controller="Project" asp-action="Create" class="fw-bold">Skapa det första projektet!</a>
                 </div>
             </div>
         }

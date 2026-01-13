@@ -187,3 +187,24 @@ body {
     transform: scale(1.1);
     color: var(--primary-blue) !important;
 }
+
+/* Ta bort all transformation och extra skugga vid hover på profilsidan */
+.card {
+    transition: none !important;
+    transform: none !important;
+}
+
+    .card:hover {
+        transform: none !important;
+        box-shadow: 0 .125rem .25rem rgba(0,0,0,.075) !important; /* Behåll bara standardskuggan */
+    }
+
+/* En mycket diskret effekt för projekt-boxarna så de känns klickbara men inte jobbiga */
+.profile-project-item {
+    transition: background-color 0.2s ease;
+}
+
+    .profile-project-item:hover {
+        background-color: #e9ecef !important; /* Blir bara lite mörkare grå */
+        cursor: pointer;
+    }

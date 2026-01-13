@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
 
 namespace grupp6WebApp.Models;
 
@@ -21,15 +22,16 @@ public class User
 
     public string? Phone { get; set; }
 
-    public bool IsActive { get; set; } = true; // Standardvärde 1 (Aktivt konto)
+    public bool IsActive { get; set; } = true;
 
-    // Här lagras HASH (BCrypt)
     [Required]
     public string Password { get; set; } = string.Empty;
 
     // Navigation
     public Profile? Profile { get; set; }
-    public List<Project> Projects { get; set; } = new();
-    public List<Message> ReceivedMessages { get; set; } = new();
 
+    // ÄNDRAD: Från List till virtual ICollection för Many-to-Many
+    public virtual ICollection<Project> Projects { get; set; } = new List<Project>();
+
+    public List<Message> ReceivedMessages { get; set; } = new List<Message>();
 }
