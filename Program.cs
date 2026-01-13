@@ -12,14 +12,16 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-// 3) Cookie Authentication (ENDAST EN GÅNG!)
+// --- HÄR TOG VI BORT PASSWORD HASHER EFTERSOM NI KÖR BCRYPT ---
+
+// 3) Cookie Authentication
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
         options.LoginPath = "/Account/Login";
         options.LogoutPath = "/Account/Logout";
         options.AccessDeniedPath = "/Account/Login";
-        options.Cookie.Name = "group6.auth"; // Detta namn används i webbläsaren
+        options.Cookie.Name = "group6.auth";
         options.SlidingExpiration = true;
         options.ExpireTimeSpan = TimeSpan.FromDays(7);
     });
@@ -42,13 +44,11 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-// VIKTIG ORDNING: Routing -> Authentication -> Authorization
 app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Endpoints
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

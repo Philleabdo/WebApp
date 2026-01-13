@@ -29,4 +29,5 @@ public class User
     public Profile? Profile { get; set; }
     public List<Project> Projects { get; set; } = new();
     public List<Message> ReceivedMessages { get; set; } = new();
+
 }
