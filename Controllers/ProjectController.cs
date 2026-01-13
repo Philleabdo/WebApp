@@ -24,12 +24,12 @@ public class ProjectController : Controller
         return View(projects);
     }
 
-    // --- DENNA METOD SAKNADES ---
     [AllowAnonymous]
     public async Task<IActionResult> Details(int id)
     {
         var project = await _context.Projects
-            .Include(p => p.User) // Krävs för att visa skaparens namn
+            .Include(p => p.User) // Skaparen
+            .Include(p => p.UsersWhoDisplay) // Alla som bockat i projektet (Many-to-Many)
             .FirstOrDefaultAsync(p => p.ProjectId == id);
 
         if (project == null)
@@ -59,6 +59,54 @@ public class ProjectController : Controller
         return View(project);
     }
 
+    // --- NYA EDIT-METODER ---
+
+    [HttpGet]
+    public async Task<IActionResult> Edit(int id)
+    {
+        var project = await _context.Projects.FindAsync(id);
+        if (project == null) return NotFound();
+
+        // Endast skaparen får redigera
+        var currentUserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+        if (project.UserId != currentUserId) return Forbid();
+
+        return View(project);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(int id, Project project)
+    {
+        if (id != project.ProjectId) return NotFound();
+
+        var currentUserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+        // Hämta befintligt projekt för att kolla ägarskap (AsNoTracking för att undvika krock i context)
+        var existingProject = await _context.Projects.AsNoTracking().FirstOrDefaultAsync(p => p.ProjectId == id);
+        if (existingProject == null) return NotFound();
+        if (existingProject.UserId != currentUserId) return Forbid();
+
+        if (ModelState.IsValid)
+        {
+            try
+            {
+                // Säkerställ att UserId och CreatedDate inte ändras av misstag
+                project.UserId = currentUserId;
+                _context.Update(project);
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Projektet har uppdaterats!";
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!ProjectExists(project.ProjectId)) return NotFound();
+                else throw;
+            }
+            return RedirectToAction(nameof(Index));
+        }
+        return View(project);
+    }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
@@ -82,5 +130,10 @@ public class ProjectController : Controller
         TempData["SuccessMessage"] = "Projektet raderades permanent från systemet.";
 
         return RedirectToAction(nameof(Index));
+    }
+
+    private bool ProjectExists(int id)
+    {
+        return _context.Projects.Any(e => e.ProjectId == id);
     }
 }
