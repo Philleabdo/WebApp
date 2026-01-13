@@ -12,8 +12,8 @@ using grupp6WebApp.Data;
 namespace grupp6WebApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260113214203_FreshStart")]
-    partial class FreshStart
+    [Migration("20260113221630_ManyToManyFinalFix")]
+    partial class ManyToManyFinalFix
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,21 @@ namespace grupp6WebApp.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("ProjectUser", b =>
+                {
+                    b.Property<int>("ProjectsProjectId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UsersWhoDisplayUserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ProjectsProjectId", "UsersWhoDisplayUserId");
+
+                    b.HasIndex("UsersWhoDisplayUserId");
+
+                    b.ToTable("UserProjectDisplay", (string)null);
+                });
 
             modelBuilder.Entity("grupp6WebApp.Models.Message", b =>
                 {
@@ -176,14 +191,24 @@ namespace grupp6WebApp.Migrations
                     b.Property<string>("Phone")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("ProjectId")
-                        .HasColumnType("int");
-
                     b.HasKey("UserId");
 
-                    b.HasIndex("ProjectId");
-
                     b.ToTable("User", (string)null);
+                });
+
+            modelBuilder.Entity("ProjectUser", b =>
+                {
+                    b.HasOne("grupp6WebApp.Models.Project", null)
+                        .WithMany()
+                        .HasForeignKey("ProjectsProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("grupp6WebApp.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("UsersWhoDisplayUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("grupp6WebApp.Models.Message", b =>
@@ -211,9 +236,9 @@ namespace grupp6WebApp.Migrations
             modelBuilder.Entity("grupp6WebApp.Models.Project", b =>
                 {
                     b.HasOne("grupp6WebApp.Models.User", "User")
-                        .WithMany("Projects")
+                        .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("User");
@@ -221,21 +246,7 @@ namespace grupp6WebApp.Migrations
 
             modelBuilder.Entity("grupp6WebApp.Models.User", b =>
                 {
-                    b.HasOne("grupp6WebApp.Models.Project", null)
-                        .WithMany("UsersWhoDisplay")
-                        .HasForeignKey("ProjectId");
-                });
-
-            modelBuilder.Entity("grupp6WebApp.Models.Project", b =>
-                {
-                    b.Navigation("UsersWhoDisplay");
-                });
-
-            modelBuilder.Entity("grupp6WebApp.Models.User", b =>
-                {
                     b.Navigation("Profile");
-
-                    b.Navigation("Projects");
 
                     b.Navigation("ReceivedMessages");
                 });

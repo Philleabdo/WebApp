@@ -20,6 +20,7 @@ public class ProjectController : Controller
     [AllowAnonymous]
     public async Task<IActionResult> Index()
     {
+        // Inkluderar ägaren för att kunna visa "Skapad av"
         var projects = await _context.Projects.Include(p => p.User).ToListAsync();
         return View(projects);
     }
@@ -47,20 +48,24 @@ public class ProjectController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
-        var currentUserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userIdClaim == null) return Unauthorized();
+
+        var currentUserId = int.Parse(userIdClaim);
         var project = await _context.Projects.FindAsync(id);
 
         if (project == null) return NotFound();
 
-        // SÄKERHETSKOLL: Endast skaparen får radera projektet permanent från systemet
+        // SÄKERHETSKOLL: Endast den ursprungliga skaparen (UserId) får radera permanent
         if (project.UserId != currentUserId)
         {
-            return Forbid();
+            TempData["ErrorMessage"] = "Du kan bara radera projekt som du själv har skapat.";
+            return RedirectToAction(nameof(Index));
         }
 
         _context.Projects.Remove(project);
         await _context.SaveChangesAsync();
-        TempData["SuccessMessage"] = "Projektet raderades permanent.";
+        TempData["SuccessMessage"] = "Projektet raderades permanent från systemet.";
 
         return RedirectToAction(nameof(Index));
     }

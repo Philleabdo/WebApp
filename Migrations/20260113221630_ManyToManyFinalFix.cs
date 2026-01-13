@@ -6,11 +6,30 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace grupp6WebApp.Migrations
 {
     /// <inheritdoc />
-    public partial class FreshStart : Migration
+    public partial class ManyToManyFinalFix : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "User",
+                columns: table => new
+                {
+                    UserId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Phone = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
+                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_User", x => x.UserId);
+                });
+
             migrationBuilder.CreateTable(
                 name: "Message",
                 columns: table => new
@@ -27,6 +46,12 @@ namespace grupp6WebApp.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Message", x => x.MessageId);
+                    table.ForeignKey(
+                        name: "FK_Message_User_ReceiverUserId",
+                        column: x => x.ReceiverUserId,
+                        principalTable: "User",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -48,6 +73,12 @@ namespace grupp6WebApp.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Profile", x => x.ProfileId);
+                    table.ForeignKey(
+                        name: "FK_Profile_User_UserId",
+                        column: x => x.UserId,
+                        principalTable: "User",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -65,31 +96,36 @@ namespace grupp6WebApp.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Project", x => x.ProjectId);
+                    table.ForeignKey(
+                        name: "FK_Project_User_UserId",
+                        column: x => x.UserId,
+                        principalTable: "User",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "User",
+                name: "UserProjectDisplay",
                 columns: table => new
                 {
-                    UserId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Phone = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
-                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ProjectId = table.Column<int>(type: "int", nullable: true)
+                    ProjectsProjectId = table.Column<int>(type: "int", nullable: false),
+                    UsersWhoDisplayUserId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_User", x => x.UserId);
+                    table.PrimaryKey("PK_UserProjectDisplay", x => new { x.ProjectsProjectId, x.UsersWhoDisplayUserId });
                     table.ForeignKey(
-                        name: "FK_User_Project_ProjectId",
-                        column: x => x.ProjectId,
+                        name: "FK_UserProjectDisplay_Project_ProjectsProjectId",
+                        column: x => x.ProjectsProjectId,
                         principalTable: "Project",
-                        principalColumn: "ProjectId");
+                        principalColumn: "ProjectId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserProjectDisplay_User_UsersWhoDisplayUserId",
+                        column: x => x.UsersWhoDisplayUserId,
+                        principalTable: "User",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -109,42 +145,14 @@ namespace grupp6WebApp.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_User_ProjectId",
-                table: "User",
-                column: "ProjectId");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_Message_User_ReceiverUserId",
-                table: "Message",
-                column: "ReceiverUserId",
-                principalTable: "User",
-                principalColumn: "UserId",
-                onDelete: ReferentialAction.Cascade);
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_Profile_User_UserId",
-                table: "Profile",
-                column: "UserId",
-                principalTable: "User",
-                principalColumn: "UserId",
-                onDelete: ReferentialAction.Cascade);
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_Project_User_UserId",
-                table: "Project",
-                column: "UserId",
-                principalTable: "User",
-                principalColumn: "UserId",
-                onDelete: ReferentialAction.Cascade);
+                name: "IX_UserProjectDisplay_UsersWhoDisplayUserId",
+                table: "UserProjectDisplay",
+                column: "UsersWhoDisplayUserId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Project_User_UserId",
-                table: "Project");
-
             migrationBuilder.DropTable(
                 name: "Message");
 
@@ -152,10 +160,13 @@ namespace grupp6WebApp.Migrations
                 name: "Profile");
 
             migrationBuilder.DropTable(
-                name: "User");
+                name: "UserProjectDisplay");
 
             migrationBuilder.DropTable(
                 name: "Project");
+
+            migrationBuilder.DropTable(
+                name: "User");
         }
     }
 }
