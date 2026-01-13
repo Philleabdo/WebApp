@@ -1,35 +1,57 @@
 ﻿@page
 @model grupp6WebApp.Pages.Manage.IndexModel
 @{
-    ViewData["Title"] = "Hantera konto";
+    ViewData["Title"] = "Inställningar";
 }
 
-<h1>Hantera konto</h1>
+<div class="row justify-content-center py-5">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm border-0 p-4 p-md-5 bg-white no-hover">
+            <div class="mb-4 text-center">
+                <h2 class="fw-bold">Mitt konto</h2>
+                <p class="text-muted small">Hantera dina inställningar och profiluppgifter</p>
+            </div>
 
-@if (TempData["StatusMessage"] is string msg && !string.IsNullOrWhiteSpace(msg))
-{
-    <div style="padding:10px; border; 1px solid #ccc; margin-bottom:12px;">
-        @msg
+            @if (TempData["StatusMessage"] is string msg && !string.IsNullOrWhiteSpace(msg))
+            {
+                <div class="alert alert-info border-0 shadow-sm mb-4">
+                    <i class="bi bi-info-circle me-2"></i> @msg
+                </div>
+            }
+
+            <div class="list-group list-group-flush mb-4">
+                <a href="/Profile" class="list-group-item list-group-item-action py-3 border-0 rounded-3 mb-2 bg-light d-flex align-items-center">
+                    <i class="bi bi-person-circle fs-4 me-3 text-primary"></i>
+                    <div>
+                        <div class="fw-bold">Profil</div>
+                        <div class="small text-muted">Se hur din profil ser ut för andra</div>
+                    </div>
+                </a>
+
+                <a asp-controller="Message" asp-action="Inbox" class="list-group-item list-group-item-action py-3 border-0 rounded-3 mb-2 bg-light d-flex align-items-center">
+                    <i class="bi bi-chat-dots fs-4 me-3 text-primary"></i>
+                    <div>
+                        <div class="fw-bold">Meddelanden</div>
+                        <div class="small text-muted">Gå till din inkorg</div>
+                    </div>
+                </a>
+
+                <a asp-page="/Manage/ChangePassword" class="list-group-item list-group-item-action py-3 border-0 rounded-3 mb-2 bg-light d-flex align-items-center">
+                    <i class="bi bi-shield-lock fs-4 me-3 text-primary"></i>
+                    <div>
+                        <div class="fw-bold">Säkerhet</div>
+                        <div class="small text-muted">Byt ditt lösenord</div>
+                    </div>
+                </a>
+            </div>
+
+            <hr class="my-4 opacity-25">
+
+            <div class="text-center">
+                <a class="btn btn-outline-danger rounded-pill px-4 fw-bold shadow-sm" asp-area="" asp-page="/Account/Logout">
+                    <i class="bi bi-box-arrow-right me-2"></i> Logga ut
+                </a>
+            </div>
+        </div>
     </div>
-}
-
-<p>Här är en översikt med länkar (demo). DB/Identity kopplas senare.</p>
-
-<ul>
-    <li><a href="/Profile">Profil</a></li>
-    <li><a href="Messages">Meddelanden</a></li>
-    <li><a href="/Projects">Projekt</a></li>
-</ul>
-
-<hr />
-<ul>
-    <li>
-        <a asp-page="/Manage/ChangePassword">Byt lösenord</a>
-    </li>
-    <li>
-        <a asp-page="/Account/Login">Login in</a>
-    </li>
-    <li>
-        <a asp-asp-page="/Account/Register">Registrera</a>
-    </li>
-</ul>
+</div>

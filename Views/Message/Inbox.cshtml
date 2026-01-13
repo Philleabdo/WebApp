@@ -1,28 +1,39 @@
 ﻿@model List<grupp6WebApp.Models.Message>
+@{
+    ViewData["Title"] = "Inkorg";
+}
 
-<h2>Inkorg</h2>
-<a asp-action="Create">Skicka nytt meddelande</a>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold">Din Inkorg</h2>
+    <a asp-action="Create" class="btn btn-primary rounded-pill px-4">Nytt meddelande</a>
+</div>
 
 @if (!Model.Any())
 {
-    <p>Du har inga meddelanden.</p>
+    <div class="card shadow-sm border-0 p-5 text-center">
+        <p class="text-muted mb-0">Du har inga meddelanden än.</p>
+    </div>
 }
 else
 {
-    <ul>
-        @foreach (var msg in Model)
-        {
-            <li>
-                <a asp-action="Details" asp-route-id="@msg.MessageId">
-                    @msg.Subject
+    <div class="card shadow-sm border-0 overflow-hidden">
+        <div class="list-group list-group-flush">
+            @foreach (var msg in Model)
+            {
+                <a asp-action="Details" asp-route-id="@msg.MessageId"
+                   class="list-group-item list-group-item-action p-4 @(msg.IsRead ? "" : "bg-light border-start border-primary border-4")">
+                    <div class="d-flex w-100 justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1 @(msg.IsRead ? "" : "fw-bold")">@msg.Subject</h6>
+                            <small class="text-muted">Från: @msg.SenderName</small>
+                        </div>
+                        @if (!msg.IsRead)
+                        {
+                            <span class="badge rounded-pill bg-primary">Nytt</span>
+                        }
+                    </div>
                 </a>
-                – @msg.SenderName
-
-                @if (!msg.IsRead)
-                {
-                    <strong>(Oläst)</strong>
-                }
-            </li>
-        }
-    </ul>
+            }
+        </div>
+    </div>
 }

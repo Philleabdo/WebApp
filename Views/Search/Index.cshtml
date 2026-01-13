@@ -1,33 +1,66 @@
 ﻿@model List<grupp6WebApp.Models.Project>
 @{
-    ViewData["Title"] = "Sök";
+    ViewData["Title"] = "Sök projekt";
 }
 
-<h1>Sök projekt</h1>
-
-<form method="get" class="mb-4">
-    <div class="input-group">
-        <input type="text" name="q" value="@ViewBag.Query" class="form-control" placeholder="Sök på titel eller innehåll..." />
-        <button type="submit" class="btn btn-primary">Sök</button>
+<div class="container py-4">
+    <div class="text-center mb-5">
+        <h1 class="fw-bold display-5">Sök projekt</h1>
+        <p class="text-muted fs-5">Hitta inspiration och innovativa idéer i vår databas</p>
     </div>
-</form>
 
-@if (ViewBag.Query != null)
-{
-    <h3>Resultat för "@ViewBag.Query"</h3>
-    @if (!Model.Any())
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0 p-2 rounded-pill bg-white">
+                <form method="get" class="d-flex align-items-center px-2">
+                    <input type="text" name="q" value="@ViewBag.Query"
+                           class="form-control border-0 bg-transparent py-3 ps-3 shadow-none"
+                           placeholder="Sök på titel eller innehåll..." />
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 py-2 fw-bold">Sök</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    @if (ViewBag.Query != null)
     {
-        <p>Inga matchningar hittades.</p>
+        <div class="mb-4">
+            <h4 class="text-secondary fw-light">
+                Resultat för <span class="text-dark fw-bold italic">"@ViewBag.Query"</span>
+            </h4>
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div class="card shadow-sm border-0 p-5 text-center bg-white rounded-4">
+                <p class="text-muted fs-5 mb-0">Tyvärr hittade vi inga matchningar för din sökning.</p>
+                <a asp-action="Index" class="text-primary fw-bold text-decoration-none mt-3 d-inline-block">Visa alla projekt</a>
+            </div>
+        }
+        else
+        {
+            <div class="row">
+                @foreach (var p in Model)
+                {
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card h-100 shadow-sm border-0 transition-all">
+                            <div class="card-body p-4">
+                                <div class="mb-2">
+                                    <span class="badge bg-light text-primary rounded-pill px-3 py-2 uppercase fw-bold" style="font-size: 0.7rem;">Projekt</span>
+                                </div>
+                                <h4 class="fw-bold mb-3">@p.Title</h4>
+                                <p class="text-secondary small line-clamp-3">
+                                    @(p.Description?.Length > 120 ? p.Description.Substring(0, 120) + "..." : p.Description)
+                                </p>
+                            </div>
+                            <div class="card-footer bg-transparent border-0 p-4 pt-0">
+                                <a asp-controller="Project" asp-action="Details" asp-route-id="@p.ProjectId"
+                                   class="stretched-link text-primary fw-bold text-decoration-none small">Läs mer &rarr;</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
     }
-    else
-    {
-        <ul>
-            @foreach (var p in Model)
-            {
-                <li>
-                    <a asp-controller="Project" asp-action="Details" asp-route-id="@p.ProjectId">@p.Title</a>
-                </li>
-            }
-        </ul>
-    }
-}
+</div>
