@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using System.Xml.Linq; 
+using System.Text;     
 
 namespace grupp6WebApp.Controllers;
 
@@ -34,6 +36,68 @@ public class UserController : Controller
     }
 
     [HttpGet]
+    public async Task<IActionResult> DownloadXml()
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!int.TryParse(userIdClaim, out var userId)) return RedirectToAction("Login", "Account");
+
+        var user = await _db.Users
+            .Include(u => u.Profile)
+            .Include(u => u.Projects)
+            .SingleOrDefaultAsync(u => u.UserId == userId);
+
+        if (user == null) return NotFound();
+
+        // Skapa XML-struktur
+        var xmlDoc = new XDocument(
+            new XElement("CV",
+                new XElement("Användare",
+                    new XElement("Namn", $"{user.FirstName} {user.LastName}"),
+                    new XElement("Epost", user.Email),
+                    new XElement("Adress", user.Address)
+                ),
+                new XElement("Profil",
+                    new XElement("Bio", user.Profile?.Bio ?? ""),
+                    new XElement("Kompetenser", user.Profile?.Skills ?? ""),
+                    new XElement("Utbildning", user.Profile?.Education ?? ""),
+                    new XElement("Erfarenhet", user.Profile?.Experience ?? "")
+                ),
+                new XElement("Projekt",
+                    user.Projects.Select(p => new XElement("ProjektInfo",
+                        new XElement("Titel", p.Title),
+                        new XElement("Beskrivning", p.Description ?? "")
+                    ))
+                )
+            )
+        );
+
+        var bytes = Encoding.UTF8.GetBytes(xmlDoc.ToString());
+        return File(bytes, "application/xml", $"CV_{user.LastName}.xml");
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeactivateAccount()
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (int.TryParse(userIdClaim, out var userId))
+        {
+            var user = await _db.Users.FindAsync(userId);
+            if (user != null)
+            {
+                user.IsActive = false;
+                await _db.SaveChangesAsync();
+
+                // Här kan du lägga till utloggning om du använder Identity
+                // await _signInManager.SignOutAsync(); 
+
+                return RedirectToAction("Index", "Home");
+            }
+        }
+        return RedirectToAction("Profile");
+    }
+
+    [HttpGet]
     public async Task<IActionResult> Edit()
     {
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -60,7 +124,6 @@ public class UserController : Controller
 
         if (user == null) return NotFound();
 
-        // Uppdatera Basinfo
         user.FirstName = model.FirstName;
         user.LastName = model.LastName;
         user.Address = model.Address;
@@ -77,15 +140,11 @@ public class UserController : Controller
         user.Profile.Experience = model.Experience;
         user.Profile.IsPublic = model.IsPublic;
 
-        // --- SÄKER HANTERING AV PROJEKT ---
-        // Vi hämtar de projekt användaren har valt
         if (selectedProjectIds != null)
         {
             var chosenProjects = await _db.Projects
                 .Where(p => selectedProjectIds.Contains(p.ProjectId))
                 .ToListAsync();
-
-            // Uppdatera användarens projektlista
             user.Projects = chosenProjects;
         }
         else
@@ -93,7 +152,6 @@ public class UserController : Controller
             user.Projects.Clear();
         }
 
-        // --- BILDHANTERING ---
         if (profileImage != null && profileImage.Length > 0)
         {
             if (!string.IsNullOrEmpty(user.Profile.ProfilePictureUrl))
