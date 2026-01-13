@@ -60,7 +60,7 @@ public class UserController : Controller
 
         if (user == null) return NotFound();
 
-        // Uppdatera basuppgifter
+        // Uppdatera Basinfo
         user.FirstName = model.FirstName;
         user.LastName = model.LastName;
         user.Address = model.Address;
@@ -77,32 +77,20 @@ public class UserController : Controller
         user.Profile.Experience = model.Experience;
         user.Profile.IsPublic = model.IsPublic;
 
-        // --- FIX: HANTERA FLERA PROJEKT UTAN ATT RADERA DEM FRÅN SYSTEMET ---
-
-        // 1. Identifiera vilka projekt som ska tas bort från CV:t (de som inte finns i selectedProjectIds)
-        var projectsToRemove = user.Projects
-            .Where(p => selectedProjectIds == null || !selectedProjectIds.Contains(p.ProjectId))
-            .ToList();
-
-        foreach (var project in projectsToRemove)
+        // --- SÄKER HANTERING AV PROJEKT ---
+        // Vi hämtar de projekt användaren har valt
+        if (selectedProjectIds != null)
         {
-            user.Projects.Remove(project); // Tar bara bort länken/relationen
-        }
-
-        // 2. Identifiera vilka projekt som ska läggas till (de som finns i selectedProjectIds men inte redan visas)
-        if (selectedProjectIds != null && selectedProjectIds.Length > 0)
-        {
-            var projectsToAdd = await _db.Projects
+            var chosenProjects = await _db.Projects
                 .Where(p => selectedProjectIds.Contains(p.ProjectId))
                 .ToListAsync();
 
-            foreach (var project in projectsToAdd)
-            {
-                if (!user.Projects.Any(p => p.ProjectId == project.ProjectId))
-                {
-                    user.Projects.Add(project);
-                }
-            }
+            // Uppdatera användarens projektlista
+            user.Projects = chosenProjects;
+        }
+        else
+        {
+            user.Projects.Clear();
         }
 
         // --- BILDHANTERING ---
@@ -166,7 +154,6 @@ public class UserController : Controller
             ViewCount = user.Profile?.ViewCount ?? 0,
             IsPublic = user.Profile?.IsPublic ?? true,
             ProfilePictureUrl = string.IsNullOrEmpty(user.Profile?.ProfilePictureUrl) ? DefaultProfilePic : user.Profile.ProfilePictureUrl,
-            // Vi mappar titlarna för att visa dem i vyn
             Projects = user.Projects?.Select(p => p.Title).ToList() ?? new List<string>()
         };
     }

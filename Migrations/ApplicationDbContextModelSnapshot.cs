@@ -173,7 +173,12 @@ namespace grupp6WebApp.Migrations
                     b.Property<string>("Phone")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("ProjectId")
+                        .HasColumnType("int");
+
                     b.HasKey("UserId");
+
+                    b.HasIndex("ProjectId");
 
                     b.ToTable("User", (string)null);
                 });
@@ -209,6 +214,18 @@ namespace grupp6WebApp.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("grupp6WebApp.Models.User", b =>
+                {
+                    b.HasOne("grupp6WebApp.Models.Project", null)
+                        .WithMany("UsersWhoDisplay")
+                        .HasForeignKey("ProjectId");
+                });
+
+            modelBuilder.Entity("grupp6WebApp.Models.Project", b =>
+                {
+                    b.Navigation("UsersWhoDisplay");
                 });
 
             modelBuilder.Entity("grupp6WebApp.Models.User", b =>
