@@ -16,5 +16,9 @@ public class Profile
     public bool IsPublic { get; set; } = true;
     public string? ProfilePictureUrl { get; set; }
 
+    // NYA FÄLT HÄR:
+    public int ViewCount { get; set; } = 0; // Standardvärde 0
+    public string? Category { get; set; }  // Kan vara null (t.ex. Frontend/Backend)
+
     public User? User { get; set; }
 }

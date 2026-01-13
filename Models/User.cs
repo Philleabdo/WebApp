@@ -21,6 +21,8 @@ public class User
 
     public string? Phone { get; set; }
 
+    public bool IsActive { get; set; } = true; // Standardvärde 1 (Aktivt konto)
+
     // Här lagras HASH (BCrypt)
     [Required]
     public string Password { get; set; } = string.Empty;

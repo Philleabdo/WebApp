@@ -24,6 +24,20 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Project>().ToTable("Project");
         modelBuilder.Entity<Message>().ToTable("Message");
 
+        // --- KONFIGURATION FÖR NYA FÄLT ---
+
+        // Sätter IsActive till 1 (true) som standard i databasen
+        modelBuilder.Entity<User>()
+            .Property(u => u.IsActive)
+            .HasDefaultValue(true);
+
+        // Sätter ViewCount till 0 som standard i databasen
+        modelBuilder.Entity<Profile>()
+            .Property(p => p.ViewCount)
+            .HasDefaultValue(0);
+
+        // ----------------------------------
+
         modelBuilder.Entity<User>()
             .HasOne(u => u.Profile)
             .WithOne(p => p.User)
